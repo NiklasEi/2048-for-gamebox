@@ -1,0 +1,23 @@
+# use & for colors
+#   placeholders will be listed in front of the keys
+
+# messages and inventory titles directly related to the game
+game:
+  econ:
+    # use %cost% for the amount payed
+    payed: " &2You paid &4%cost%"
+    notEnoughMoney: " &4You do not have not enough money!"
+    # use %reward% for the amount the player won
+    wonMoney: " &2You won &1%reward%&2!"
+  inventoryTitles:
+    gameTitle: "Testing"
+    lost: "2048        &4You lost"
+
+
+prefix: "[&32048&r]"
+name: "&12048&r"
+
+gameHelp:
+  - '&1&lShift dem tiles ;)'
+  - '&1&l2nd line'
+  
