@@ -71,8 +71,8 @@ public class GameManager implements IGameManager {
 
     @Override
     public boolean onInventoryClose(InventoryCloseEvent inventoryCloseEvent) {
-        // ToDo
-        return false;
+        games.remove(inventoryCloseEvent.getPlayer().getUniqueId());
+        return true;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class GameManager implements IGameManager {
 
     @Override
     public void removeFromGame(UUID uuid) {
-        // ToDo
+        games.remove(uuid);
     }
 
     public void setGameTypes(Map<String, GameRules> gameTypes) {
