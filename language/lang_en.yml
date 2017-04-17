@@ -10,8 +10,8 @@ game:
     # use %reward% for the amount the player won
     wonMoney: " &2You won &1%reward%&2!"
   inventoryTitles:
-    gameTitle: "Testing"
-    lost: "2048        &4You lost"
+    gameTitle: "&92048             &6Score: %score%"
+    lost: "&92048     &4Game Over    &6Score: %score%"
 
 
 prefix: "[&32048&r]"

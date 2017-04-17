@@ -17,7 +17,8 @@ public class Language {
 	public List<String> GAME_HELP;
 	private YamlConfiguration defaultLang;
 
-	public String GAME_TITLE, GAME_TITLE_WON, GAME_TITLE_LOST;
+	public String GAME_TITLE, GAME_TITLE_LOST
+			, GAME_PAYED, GAME_NOT_ENOUGH_MONEY, GAME_WON_MONEY;
 	
 	public Language(Main plugin){
 		this.plugin = plugin;
@@ -30,9 +31,14 @@ public class Language {
 	}
 
 	private void getGameMessages() {
+		this.GAME_PAYED = getString("game.econ.payed");
+		this.GAME_NOT_ENOUGH_MONEY = getString("game.econ.notEnoughMoney");
+		this.GAME_WON_MONEY = getString("game.econ.wonMoney");
+
 		this.GAME_HELP = getStringList("gameHelp");
 
 		this.GAME_TITLE = getString("game.inventoryTitles.gameTitle");
+		this.GAME_TITLE_LOST = getString("game.inventoryTitles.lost");
 	}
 
 

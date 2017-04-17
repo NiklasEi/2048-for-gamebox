@@ -34,11 +34,11 @@ import java.util.logging.Level;
  * Main class for the GameBox game 2048
  */
 public class Main extends JavaPlugin {
-    public static boolean debug = true;
+    public static boolean debug = false;
     public static String gameID = "2048";
 
     public static Economy econ = null;
-    public boolean econEnabled;
+    private boolean econEnabled;
 
     public Language lang;
 
@@ -488,5 +488,9 @@ public class Main extends JavaPlugin {
 
     public boolean getPlaySounds() {
         return playSounds;
+    }
+
+    public boolean isEconEnabled(){
+        return this.econEnabled;
     }
 }

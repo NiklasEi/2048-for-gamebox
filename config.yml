@@ -77,24 +77,38 @@ rules:
 economy:
   enabled: false
 
+# if you want to you can set a lore. Just add a node 'lore' to a tile and make it a list
 tiles:
   1:
     materialData: "WOOL:1"
-    displayName: "&aTest1"
-    lore:
-    - ""
+    displayName: "&a2"
   2:
     materialData: "WOOL:2"
-    displayName: "&aTest2"
-    lore:
-    - ""
+    displayName: "&a4"
   3:
     materialData: "WOOL:3"
-    displayName: "&aTest3"
-    lore:
-    - ""
+    displayName: "&a8"
   4:
     materialData: "WOOL:4"
-    displayName: "&aTest4"
-    lore:
-    - ""
+    displayName: "&a16"
+  5:
+    materialData: "WOOL:5"
+    displayName: "&a32"
+  6:
+    materialData: "WOOL:6"
+    displayName: "&a64"
+  7:
+    materialData: "WOOL:7"
+    displayName: "&a128"
+  8:
+    materialData: "WOOL:8"
+    displayName: "&a256"
+  9:
+    materialData: "WOOL:8"
+    displayName: "&a512"
+  10:
+    materialData: "WOOL:8"
+    displayName: "&a1024"
+  11:
+    materialData: "WOOL:8"
+    displayName: "&a2048"
