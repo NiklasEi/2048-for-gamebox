@@ -1,6 +1,8 @@
 package me.nikl.twoofoureight;
 
 import com.sun.org.apache.xml.internal.utils.IntVector;
+import me.nikl.gamebox.Permissions;
+import me.nikl.gamebox.data.SaveType;
 import org.apache.commons.codec.language.bm.Lang;
 import org.apache.commons.lang.enums.Enum;
 import org.bukkit.Bukkit;
@@ -51,6 +53,10 @@ public class Game {
     public enum Clicks{
         LEFT, RIGHT, UP, DOWN
     }
+
+    private Sounds gameOver = Sounds.ANVIL_LAND, combined = Sounds.ITEM_PICKUP, shift = Sounds.WOLF_WALK, no = Sounds.VILLAGER_NO;
+
+    private float volume = 0.5f, pitch= 1f;
 
     private ItemStack left, right, up, down;
 
@@ -106,13 +112,15 @@ public class Game {
         }
 
         spawn();
-        build();
+        spawn();
         player.openInventory(inventory);
 
         player.getOpenInventory().getBottomInventory().setItem(13, up);
         player.getOpenInventory().getBottomInventory().setItem(21, left);
         player.getOpenInventory().getBottomInventory().setItem(23, right);
         player.getOpenInventory().getBottomInventory().setItem(31, down);
+
+        build();
     }
 
     private void build() {
@@ -146,8 +154,49 @@ public class Game {
         }
 
         if(getFreeSlots() == 0 && !moveLeft(false) && !moveUp(false)){
+            onGameEnd();
             over = true;
-            plugin.debug("game is lost");
+            if(playSounds)player.playSound(player.getLocation(), gameOver.bukkitSound(), volume, pitch);
+            plugin.debug("game is over");
+        }
+    }
+
+
+    private int getKey(int score){
+        int distance = -1;
+        for(int key : rule.getMoneyRewards().keySet()) {
+            if((score - key) >= 0 && (distance < 0 || distance > (score - key))){
+                distance = score - key;
+            }
+        }
+        if(distance > -1)
+            return score - distance;
+        return -1;
+    }
+
+    void onGameEnd(){
+        if(player == null || over) return;
+        int key = getKey(score);
+        if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
+        if(Main.debug)Bukkit.getConsoleSender().sendMessage("pay: " + rule.getMoneyRewards().get(key)+ "     token: " + rule.getTokenRewards().get(key));
+
+        // score intervals could be empty or not configured
+        if(key < 0){
+            player.sendMessage(lang.PREFIX + lang.GAME_OVER_NO_PAY.replaceAll("%score%", score +""));
+            return;
+        }
+
+        if(plugin.isEconEnabled() && !player.hasPermission(Permissions.BYPASS_ALL.getPermission()) && !player.hasPermission(Permissions.BYPASS_GAME.getPermission(Main.gameID)) && rule.getMoneyRewards().get(key) > 0.0){
+            Main.econ.depositPlayer(player, rule.getMoneyRewards().get(key));
+            player.sendMessage(lang.PREFIX + lang.GAME_WON_MONEY.replace("%reward%", rule.getMoneyRewards().get(key)+"").replace("%score%", score+""));
+        } else {
+            player.sendMessage(lang.PREFIX + lang.GAME_OVER_NO_PAY.replace("%score%", score+""));
+        }
+        if(rule.isSaveStats()){
+            plugin.getGameManager().getStatistics().addStatistics(player.getUniqueId(), Main.gameID, rule.getKey(), (double) score, SaveType.SCORE);
+        }
+        if(rule.getTokenRewards().get(key) > 0){
+            plugin.gameBox.wonTokens(player.getUniqueId(), rule.getTokenRewards().get(key), Main.gameID);
         }
     }
 
@@ -169,7 +218,7 @@ public class Game {
 
     private boolean moveLeft(boolean set){
         List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false;
+        boolean changed =  false, played = false;
         for (int y = 0; y < gridSize;y++){
             for (int x = 0; x < gridSize - 1;x++){
                 if(grid[x][y] == 0) continue;
@@ -178,6 +227,8 @@ public class Game {
                     if(set) {
                         grid[x][y]++;
                         getNextTile(Clicks.LEFT, x, y, true);
+                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
+                        played = true;
                     }
                     changed = true;
                     x++;
@@ -199,6 +250,7 @@ public class Game {
                     if(grid[x][y] == 0){
                         continue y;
                     } else {
+                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
                         changed = true;
                     }
                 }
@@ -214,7 +266,7 @@ public class Game {
 
     private boolean moveRight(boolean set){
         List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false;
+        boolean changed =  false, played = false;
         for (int y = 0; y < gridSize;y++){
             for (int x = gridSize - 1; x >= 0 ;x--){
                 if(grid[x][y] == 0) continue;
@@ -223,6 +275,8 @@ public class Game {
                     if(set) {
                         grid[x][y]++;
                         getNextTile(Clicks.RIGHT, x, y, true);
+                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
+                        played = true;
                     }
                     changed = true;
                     x++;
@@ -245,6 +299,7 @@ public class Game {
                         continue y;
                     } else {
                         changed = true;
+                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
                     }
                 }
             }
@@ -259,7 +314,7 @@ public class Game {
 
     private boolean moveUp(boolean set){
         List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false;
+        boolean changed =  false, played = false;
         for (int x = 0; x < gridSize;x++){
             for (int y = 0; y < gridSize - 1;y++){
                 if(grid[x][y] == 0) continue;
@@ -268,6 +323,8 @@ public class Game {
                     if(set) {
                         grid[x][y]++;
                         getNextTile(Clicks.UP, x, y, true);
+                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
+                        played = true;
                     }
                     changed = true;
                     y++;
@@ -290,6 +347,7 @@ public class Game {
                         continue x;
                     } else {
                         changed = true;
+                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
                     }
                 }
             }
@@ -305,7 +363,7 @@ public class Game {
 
     private boolean moveDown(boolean set){
         List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false;
+        boolean changed =  false, played = false;
         for (int x = 0; x < gridSize;x++){
             for (int y = gridSize - 1; y >=0;y--){
                 if(grid[x][y] == 0) continue;
@@ -314,6 +372,8 @@ public class Game {
                     if(set) {
                         grid[x][y]++;
                         getNextTile(Clicks.DOWN, x, y, true);
+                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
+                        played = true;
                     }
                     changed = true;
                     y++;
@@ -336,6 +396,7 @@ public class Game {
                         continue x;
                     } else {
                         changed = true;
+                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
                     }
                 }
             }
@@ -415,6 +476,8 @@ public class Game {
                 if(moveLeft()){
                     spawn();
                     build();
+                } else {
+                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 }
                 break;
             case DOWN:
@@ -422,6 +485,8 @@ public class Game {
                 if(moveDown()){
                     spawn();
                     build();
+                } else {
+                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 }
                 break;
 
@@ -430,6 +495,8 @@ public class Game {
                 if(moveRight()){
                     spawn();
                     build();
+                } else {
+                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 }
                 break;
 
@@ -438,6 +505,8 @@ public class Game {
                 if(moveUp()){
                     spawn();
                     build();
+                } else {
+                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 }
                 break;
         }

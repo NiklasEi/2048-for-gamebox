@@ -5,32 +5,27 @@
 game:
   econ:
     # use %cost% for the amount payed
-    payed: " &2Du hast &4%cost% gezahlt"
+    payed: " &2Du hast &4%cost% bezahlt"
     notEnoughMoney: " &4Du hast nicht genug Geld!"
     # use %reward% for the amount the player won
-    wonMoney: " Du hast &2$%reward%&r gewonnen!"
+    wonMoney: " &2Du hast &6%score%&2 Punkte erreicht und &6%reward%&2 gewonnen!"
+  gameOverNoPay: " &2Du hast &6%score%&2 Punkte erreicht"
   inventoryTitles:
-    # displayed before the game starts
-    beginning: "Minesweeper    &2Klicke um zu starten"
-    # use %state% to display the number of flags and the number of mines that are left
-    #   %timer% will be replaced by the timer counting up
-    ingame: "Minesweeper     %state%   &1%timer%"
-    # use %timer% to display the time played
-    won: "Minesweeper    &2In &1%timer% &2Gewonnen"
-    lost: "Minesweeper     &4Verloren"
+    gameTitle: "&92048             &6Punkte: %score%"
+    lost: "&92048    &4Game Over  &6Punkte: %score%"
 
 
-prefix: "[&3Minesweeper&r]"
-name: "&1Minesweeper&r"
+prefix: "[&32048&r]"
+name: "&12048&r"
 
 gameHelp:
-  - '&1&lMinesweeper ist ein logik und mathe Spiel ;)'
-  - '&1&lMit links klick deckst du ein Feld auf'
-  - '  &1&lEs kann leer, eine Warnung oder eine Mine sein'
-  - '  &1&lDie Anzahl einer Warnung gibt die Anzahl der'
-  - '    &1&lMinen in direkter Umgebung an'
-  - '  &1&lWenn du eine Mine aufdeckst, hast du verloren'
-  - '&1&lDas Ziel ist es alle Felder aufzudecken'
-  - '  &1&laußer den Minen'
-  - '&1&lMakiere Felder mit Minen indem du mit'
-  - '  &1&lrechts klick Flaggen setzt'
+  - '&1&lVerschiebe die Kacheln in eine Richtung'
+  - '  &1&lmit Klicks auf die Pfeile.'
+  - '&1&lKacheln bewegen sich immer bis zum Rand des'
+  - '  &1&lSpielfelds, oder bis sie mit einer anderen'
+  - '  &1&lKachel kollidieren.'
+  - '&1&lKollidieren zwei Kacheln mit der selben'
+  - '  &1&lNummer, werden sie zu einer kombiniert.'
+  - '&1&lNach jedem Zug entsteht eine neue Kachel.'
+  - '&1&lVersuche so viele Punkte wie möglich zu'
+  - '  &1&lerreichen, bis kein Zug mehr machbar ist.'

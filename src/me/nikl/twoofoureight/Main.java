@@ -152,8 +152,7 @@ public class Main extends JavaPlugin {
         if (config.isConfigurationSection("gameBox.gameButtons")) {
             ConfigurationSection gameButtons = config.getConfigurationSection("gameBox.gameButtons");
             ConfigurationSection buttonSec;
-            int tokens;
-            double cost, reward;
+            double cost;
             boolean saveStats;
 
             String displayName;
@@ -208,12 +207,10 @@ public class Main extends JavaPlugin {
 
 
                 cost = buttonSec.getDouble("cost", 0.);
-                reward = buttonSec.getDouble("reward", 0.);
-                tokens = buttonSec.getInt("tokens", 0);
                 saveStats = buttonSec.getBoolean("saveStats", false);
 
 
-                rules = new GameRules(buttonID, cost, reward, tokens, saveStats);
+                rules = new GameRules(this, buttonID, cost, saveStats);
 
                 setTheButton:
                 if (buttonSec.isInt("slot")) {

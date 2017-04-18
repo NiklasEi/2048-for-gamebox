@@ -8,16 +8,23 @@ game:
     payed: " &2You paid &4%cost%"
     notEnoughMoney: " &4You do not have not enough money!"
     # use %reward% for the amount the player won
-    wonMoney: " &2You won &1%reward%&2!"
+    wonMoney: " &2You reached a score of &6%score%&2 and won &6%reward%&2!"
+  gameOverNoPay: " &2You reached a score of &6%score%"
   inventoryTitles:
-    gameTitle: "&92048             &6Score: %score%"
-    lost: "&92048     &4Game Over    &6Score: %score%"
+    gameTitle: "&92048             Score: %score%"
+    lost: "&92048    &4Game Over  &9Score: %score%"
 
 
 prefix: "[&32048&r]"
 name: "&12048&r"
 
 gameHelp:
-  - '&1&lShift dem tiles ;)'
-  - '&1&l2nd line'
-  
+  - '&1&lEvery turn, a new tile will randomly appear'
+  - '  &1&lin an empty spot on the board,'
+  - '  &1&lwith a value of either 2 or 4.'
+  - '&1&lTiles slide as far as possible in the chosen'
+  - '  &1&ldirection until they are stopped by either'
+  - '  &1&lanother tile or the edge of the grid.'
+  - '&1&lIf two tiles of the same number collide while'
+  - '  &1&lmoving, they will merge into a tile with the '
+  - '  &1&ltotal value of the two tiles that collided.'

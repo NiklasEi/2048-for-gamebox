@@ -63,6 +63,10 @@ public class GameManager implements IGameManager {
             }
             ItemStack item = plugin.getItemStack(tiles.getString(key + ".materialData"));
 
+            if(tiles.getBoolean(key + ".glow")){
+                item = plugin.getNms().addGlow(item);
+            }
+
             ItemMeta meta = item.getItemMeta();
 
             if(tiles.isString(key + ".displayName")){
@@ -101,6 +105,7 @@ public class GameManager implements IGameManager {
 
     @Override
     public boolean onInventoryClose(InventoryCloseEvent inventoryCloseEvent) {
+        games.get(inventoryCloseEvent.getPlayer().getUniqueId()).onGameEnd();
         games.remove(inventoryCloseEvent.getPlayer().getUniqueId());
         return true;
     }
@@ -111,17 +116,17 @@ public class GameManager implements IGameManager {
     }
 
     @Override
-    public int startGame(Player[] players, boolean b, String... strings) {
-        if(strings.length != 1){
+    public int startGame(Player[] players, boolean playSounds, String... strings) {
+        if (strings.length != 1) {
             Bukkit.getLogger().log(Level.WARNING, " unknown number of arguments to start a game: " + Arrays.asList(strings));
             return GameBox.GAME_NOT_STARTED_ERROR;
         }
         GameRules rule = gameTypes.get(strings[0]);
-        if(rule == null){
+        if (rule == null) {
             Bukkit.getLogger().log(Level.WARNING, " unknown argument to start a game: " + Arrays.asList(strings));
             return GameBox.GAME_NOT_STARTED_ERROR;
         }
-        if(!pay(players, rule.getCost())){
+        if (!pay(players, rule.getCost())) {
             return GameBox.GAME_NOT_ENOUGH_MONEY;
         }
 
@@ -131,13 +136,13 @@ public class GameManager implements IGameManager {
 
     @Override
     public void removeFromGame(UUID uuid) {
+        games.get(uuid).onGameEnd();
         games.remove(uuid);
     }
 
     public void setGameTypes(Map<String, GameRules> gameTypes) {
         this.gameTypes = gameTypes;
     }
-
 
 
     private boolean pay(Player[] player, double cost) {
@@ -153,5 +158,9 @@ public class GameManager implements IGameManager {
         } else {
             return true;
         }
+    }
+
+    public Statistics getStatistics() {
+        return statistics;
     }
 }
