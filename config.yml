@@ -103,6 +103,10 @@ rules:
   # enable/disable sound
   playSounds: true
 
+buttons:
+  navigation:
+    materialData: "ARROW"
+    glow: false
 
 # requires vault and an economy plugin
 #   to enable economy do not forget to enable it for GameBox too
