@@ -51,6 +51,13 @@ public class GameManager implements IGameManager {
             return;
         }
 
+        // in items 0 the navigation item is saved
+        ItemStack nav = plugin.getItemStack(plugin.getConfig().getString("buttons.navigation.materialData", "ARROW"));
+        if(plugin.getConfig().getBoolean("buttons.navigation.glow")){
+            nav = plugin.getNms().addGlow(nav);
+        }
+        items.put(0, nav);
+
         ConfigurationSection tiles = plugin.getConfig().getConfigurationSection("tiles");
 
         int counter = 1;
@@ -130,7 +137,7 @@ public class GameManager implements IGameManager {
             return GameBox.GAME_NOT_ENOUGH_MONEY;
         }
 
-        games.put(players[0].getUniqueId(), new Game(rule, plugin, players[0], items));
+        games.put(players[0].getUniqueId(), new Game(rule, plugin, players[0], items, playSounds));
         return GameBox.GAME_STARTED;
     }
 
