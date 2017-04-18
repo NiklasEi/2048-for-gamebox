@@ -14,10 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Niklas on 14.04.2017.
@@ -60,37 +57,39 @@ public class Game {
 
     private ItemStack left, right, up, down;
 
-    public Game(GameRules rule, Main plugin, Player player, Map<Integer, ItemStack> items){
+    public Game(GameRules rule, Main plugin, Player player, Map<Integer, ItemStack> items, boolean playSounds){
         this.plugin = plugin;
         this.rule = rule;
-        this.playSounds = plugin.getPlaySounds();
+        this.playSounds = plugin.getPlaySounds() && playSounds;
         this.lang = plugin.lang;
 
         this.player = player;
 
         this.random = new Random(System.currentTimeMillis());
 
-        this.items = items;
+        this.items = new HashMap<>(items);
 
-        this.left = new ItemStack(Material.ARROW);
-        this.right = new ItemStack(Material.ARROW);
-        this.up = new ItemStack(Material.ARROW);
-        this.down = new ItemStack(Material.ARROW);
+        this.left = items.get(0).clone();
+        this.right = items.get(0).clone();
+        this.up = items.get(0).clone();
+        this.down = items.get(0).clone();
+
+        this.items.remove(0);
 
         ItemMeta meta = left.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Left");
+        meta.setDisplayName(lang.GAME_BUTTON_LEFT);
         this.left.setItemMeta(meta);
 
         meta = right.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Right");
+        meta.setDisplayName(lang.GAME_BUTTON_RIGHT);
         this.right.setItemMeta(meta);
 
         meta = up.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Up");
+        meta.setDisplayName(lang.GAME_BUTTON_UP);
         this.up.setItemMeta(meta);
 
         meta = down.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Down");
+        meta.setDisplayName(lang.GAME_BUTTON_DOWN);
         this.down.setItemMeta(meta);
 
         this.inventory = Bukkit.createInventory(null, 54, lang.GAME_TITLE.replace("%score%", String.valueOf(score)));
