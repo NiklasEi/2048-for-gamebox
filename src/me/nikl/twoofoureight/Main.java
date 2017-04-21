@@ -6,9 +6,8 @@ import me.nikl.gamebox.data.SaveType;
 import me.nikl.gamebox.guis.GUIManager;
 import me.nikl.gamebox.guis.button.AButton;
 import me.nikl.gamebox.guis.gui.game.GameGui;
-import me.nikl.gamebox.guis.gui.game.StartMultiplayerGamePage;
 import me.nikl.gamebox.guis.gui.game.TopListPage;
-import me.nikl.twoofoureight.nms.*;
+import me.nikl.gamebox.nms.NMSUtil;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -61,12 +60,6 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        if (!setUpNMS()) {
-            getLogger().severe("Your server version is not compatible with this plugin!");
-
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
 
         this.con = new File(this.getDataFolder().toString() + File.separatorChar + "config.yml");
 
@@ -75,6 +68,8 @@ public class Main extends JavaPlugin {
 
         hook();
         if (disabled) return;
+
+        this.nms = gameBox.getNMS();
     }
 
 
@@ -426,50 +421,6 @@ public class Main extends JavaPlugin {
         return config;
     }
 
-
-    private boolean setUpNMS() {
-        String version;
-
-        try {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
-
-        debug("Your server is running version " + version);
-
-        switch (version) {
-            case "v1_10_R1":
-                nms = new NMSUtil_1_10_R1();
-
-                break;
-            case "v1_9_R2":
-                nms = new NMSUtil_1_9_R2();
-
-                break;
-            case "v1_9_R1":
-                nms = new NMSUtil_1_9_R1();
-
-                break;
-            case "v1_8_R3":
-                nms = new NMSUtil_1_8_R3();
-
-                break;
-            case "v1_8_R2":
-                nms = new NMSUtil_1_8_R2();
-
-                break;
-            case "v1_8_R1":
-                nms = new NMSUtil_1_8_R1();
-
-                break;
-            case "v1_11_R1":
-                nms = new NMSUtil_1_11_R1();
-
-                break;
-        }
-        return nms != null;
-    }
 
     public void debug(String message) {
         if (debug) Bukkit.getLogger().log(Level.INFO, message);
