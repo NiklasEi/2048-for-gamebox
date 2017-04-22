@@ -69,7 +69,6 @@ public class Main extends JavaPlugin {
         hook();
         if (disabled) return;
 
-        this.nms = gameBox.getNMS();
     }
 
 
@@ -125,7 +124,8 @@ public class Main extends JavaPlugin {
             disabled = true;
             return;
         }
-
+    
+        this.nms = gameBox.getNMS();
 
         // disable economy if it is disabled for either one of the plugins
         this.econEnabled = this.econEnabled && gameBox.getEconEnabled();
