@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ import java.util.*;
  *
  *
  */
-public class Game {
+public class Game extends BukkitRunnable{
 
     private Main plugin;
 
@@ -42,15 +43,66 @@ public class Game {
 
     private boolean over = false;
 
+    private Status status = Status.PLAY;
+
+    @Override
+    public void run() {
+        plugin.debug("run");
+        if(over) return;
+        switch (status){
+            case PLAY:
+                return;
+            case LEFT:
+                moveOneLeft();
+                if(status != Status.LEFT){
+                    spawn();
+                }
+                build();
+
+                break;
+            case DOWN:
+                moveOneDown();
+                if(status != Status.DOWN){
+                    spawn();
+                }
+                build();
+
+                break;
+
+            case RIGHT:
+                moveOneRight();
+                if(status != Status.RIGHT){
+                    spawn();
+                }
+                build();
+                break;
+
+            case UP:
+                moveOneUp();
+                if(status != Status.UP){
+                    spawn();
+                }
+                build();
+
+                break;
+        }
+    }
+
     public enum Clicks{
         LEFT, RIGHT, UP, DOWN
     }
 
-    private Sounds gameOver = Sounds.ANVIL_LAND, combined = Sounds.ITEM_PICKUP, shift = Sounds.WOLF_WALK, no = Sounds.VILLAGER_NO;
+    private enum Status{
+        PLAY, LEFT, RIGHT, UP, DOWN
+    }
+
+    private Sounds gameOver = Sounds.ANVIL_LAND, combinedSound = Sounds.ITEM_PICKUP, shift = Sounds.WOLF_WALK, no = Sounds.VILLAGER_NO;
 
     private float volume = 0.5f, pitch= 1f;
 
     private ItemStack left, right, up, down;
+
+    private Set<Integer> combined = new HashSet<>();
 
     public Game(GameRules rule, Main plugin, Player player, Map<Integer, ItemStack> items, boolean playSounds, boolean topNav, boolean surroundGrid, ItemStack surroundItemStack){
         this.plugin = plugin;
@@ -125,6 +177,8 @@ public class Game {
         player.getOpenInventory().getBottomInventory().setItem(31, down);
 
         build();
+
+        this.runTaskTimer(plugin, 0, 3);
     }
 
     private void build() {
@@ -179,6 +233,7 @@ public class Game {
     }
 
     void onGameEnd(){
+        this.cancel();
         if(player == null || over) return;
         int key = getKey(score);
         if(Main.debug) Bukkit.getConsoleSender().sendMessage("Key in onGameEnd: " + key);
@@ -216,246 +271,177 @@ public class Game {
         return toReturn;
     }
 
-    private boolean moveLeft(){
-        return moveLeft(true);
-    }
-
     private boolean moveLeft(boolean set){
-        List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false, played = false;
         for (int y = 0; y < gridSize;y++){
-            for (int x = 0; x < gridSize - 1;x++){
-                if(grid[x][y] == 0) continue;
-                if(grid[x][y] == getNextTile(Clicks.LEFT, x, y, false)){
-                    toMerge.add(x+gridSize*y);
-                    if(set) {
-                        grid[x][y]++;
-                        getNextTile(Clicks.LEFT, x, y, true);
-                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
-                        played = true;
-                    }
-                    changed = true;
-                    x++;
+            for (int x = 1; x < gridSize;x++) {
+                if((grid[x][y] != 0 && grid[x-1][y] == 0)
+                        || (grid[x][y] != 0 && grid[x][y] == grid[x-1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x-1+y*gridSize))){
+                    if(set)this.status = Status.LEFT;
+                    return true;
                 }
             }
         }
-
-        y:
-        for (int y = 0; y < gridSize;y++) {
-            for (int x = 0; x < gridSize;x++) {
-                if(grid[x][y] == 0){
-                    if(set){
-                        grid[x][y] = getNextTile(Clicks.LEFT, x, y, true);
-                    } else {
-                        if(getNextTile(Clicks.LEFT, x, y, false) != 0){
-                            return true;
-                        }
-                    }
-                    if(grid[x][y] == 0){
-                        continue y;
-                    } else {
-                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
-                        changed = true;
-                    }
-                }
-            }
-        }
-        return changed;
+        return false;
     }
 
-
-    private boolean moveRight(){
-        return moveRight(true);
+    private void moveOneLeft(){
+        boolean playCombined = false;
+        for (int y = 0; y < gridSize;y++){
+            for (int x = 1; x < gridSize;x++) {
+                if(grid[x][y] != 0 && grid[x-1][y] == 0){
+                    grid[x-1][y] = grid[x][y];
+                    grid[x][y] = 0;
+                } else if (grid[x][y] != 0 && grid[x][y] == grid[x-1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x-1+y*gridSize)){
+                    grid[x][y] = 0;
+                    grid[x-1][y] ++;
+                    combined.add(x-1 + y*gridSize);
+                    playCombined = true;
+                }
+            }
+        }
+        if(playSounds){
+            if(playCombined) {
+                player.playSound(player.getLocation(), combinedSound.bukkitSound(), volume, pitch);
+            } else {
+                player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
+            }
+        }
+        if(!moveLeft(false)){
+            this.status = Status.PLAY;
+            combined.clear();
+        }
     }
 
     private boolean moveRight(boolean set){
-        List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false, played = false;
         for (int y = 0; y < gridSize;y++){
-            for (int x = gridSize - 1; x >= 0 ;x--){
-                if(grid[x][y] == 0) continue;
-                if(grid[x][y] == getNextTile(Clicks.RIGHT, x, y, false)){
-                    toMerge.add(x+gridSize*y);
-                    if(set) {
-                        grid[x][y]++;
-                        getNextTile(Clicks.RIGHT, x, y, true);
-                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
-                        played = true;
-                    }
-                    changed = true;
-                    x++;
+            for (int x = gridSize - 2; x >= 0 ;x--){
+                if((grid[x][y] != 0 && grid[x+1][y] == 0) || (grid[x][y] != 0 && grid[x][y] == grid[x+1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x+1+y*gridSize))){
+                    if(set)this.status = Status.RIGHT;
+                    return true;
                 }
             }
         }
-
-        y:
-        for (int y = 0; y < gridSize;y++) {
-            for (int x = gridSize - 1; x >= 0 ;x--) {
-                if(grid[x][y] == 0){
-                    if(set){
-                        grid[x][y] = getNextTile(Clicks.RIGHT, x, y, true);
-                    } else {
-                        if(getNextTile(Clicks.RIGHT, x, y, false) != 0){
-                            return true;
-                        }
-                    }
-                    if(grid[x][y] == 0){
-                        continue y;
-                    } else {
-                        changed = true;
-                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
-                    }
-                }
-            }
-        }
-        return changed;
+        return false;
     }
 
-
-    private boolean moveUp() {
-        return moveUp(true);
+    private void moveOneRight(){
+        boolean playCombined = false;
+        for (int y = 0; y < gridSize;y++){
+            for (int x = gridSize - 2; x >= 0 ;x--){
+                if(grid[x][y] != 0 && grid[x+1][y] == 0){
+                    grid[x+1][y] = grid[x][y];
+                    grid[x][y] = 0;
+                } else if (grid[x][y] != 0 && grid[x][y] == grid[x+1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x+1+y*gridSize)){
+                    grid[x][y] = 0;
+                    grid[x+1][y] ++;
+                    combined.add(x+1 + y*gridSize);
+                    playCombined = true;
+                }
+            }
+        }
+        if(playSounds){
+            if(playCombined) {
+                player.playSound(player.getLocation(), combinedSound.bukkitSound(), volume, pitch);
+            } else {
+                player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
+            }
+        }
+        if(!moveRight(false)){
+            this.status = Status.PLAY;
+            combined.clear();
+        }
     }
 
     private boolean moveUp(boolean set){
-        List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false, played = false;
         for (int x = 0; x < gridSize;x++){
-            for (int y = 0; y < gridSize - 1;y++){
-                if(grid[x][y] == 0) continue;
-                if(grid[x][y] == getNextTile(Clicks.UP, x, y, false)){
-                    toMerge.add(x+gridSize*y);
-                    if(set) {
-                        grid[x][y]++;
-                        getNextTile(Clicks.UP, x, y, true);
-                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
-                        played = true;
-                    }
-                    changed = true;
-                    y++;
+            for (int y = 1; y < gridSize;y++){
+                if((grid[x][y] != 0 && grid[x][y-1] == 0) || (grid[x][y] != 0 && grid[x][y] == grid[x][y-1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y-1)*gridSize))){
+                    if(set) this.status = Status.UP;
+                    return true;
                 }
             }
         }
+        return false;
+    }
 
-        x:
-        for (int x = 0; x < gridSize;x++) {
-            for (int y = 0; y < gridSize;y++) {
-                if(grid[x][y] == 0){
-                    if(set){
-                        grid[x][y] = getNextTile(Clicks.UP, x, y, true);
-                    } else {
-                        if(getNextTile(Clicks.UP, x, y, false) != 0){
-                            return true;
-                        }
-                    }
-                    if(grid[x][y] == 0){
-                        continue x;
-                    } else {
-                        changed = true;
-                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
-                    }
+    private void moveOneUp(){
+        boolean playCombined = false;
+        for (int x = 0; x < gridSize;x++){
+            for (int y = 1; y < gridSize;y++){
+                if(grid[x][y] != 0 && grid[x][y-1] == 0){
+                    grid[x][y-1] = grid[x][y];
+                    grid[x][y] = 0;
+                } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y-1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y-1)*gridSize)){
+                    grid[x][y] = 0;
+                    grid[x][y-1] ++;
+                    combined.add(x + (y-1)*gridSize);
+                    playCombined = true;
                 }
             }
         }
-        return changed;
+        if(playSounds){
+            if(playCombined) {
+                player.playSound(player.getLocation(), combinedSound.bukkitSound(), volume, pitch);
+            } else {
+                player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
+            }
+        }
+        if(!moveUp(false)){
+            this.status = Status.PLAY;
+            combined.clear();
+        }
     }
 
-
-
-    private boolean moveDown() {
-        return moveDown(true);
-    }
 
     private boolean moveDown(boolean set){
-        List<Integer> toMerge = new ArrayList<>();
-        boolean changed =  false, played = false;
         for (int x = 0; x < gridSize;x++){
-            for (int y = gridSize - 1; y >=0;y--){
-                if(grid[x][y] == 0) continue;
-                if(grid[x][y] == getNextTile(Clicks.DOWN, x, y, false)){
-                    toMerge.add(x+gridSize*y);
-                    if(set) {
-                        grid[x][y]++;
-                        getNextTile(Clicks.DOWN, x, y, true);
-                        if(playSounds)player.playSound(player.getLocation(), combined.bukkitSound(), volume, pitch);
-                        played = true;
-                    }
-                    changed = true;
-                    y++;
+            for (int y = gridSize - 2; y >=0;y--){
+                if(grid[x][y] != 0 && grid[x][y+1] == 0){
+                    if(set)this.status = Status.DOWN;
+                    return true;
+                } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y+1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
+                    plugin.debug("continue because of   x: " + x + "   y: " + y);
+                    if(set)this.status = Status.DOWN;
+                    return true;
                 }
             }
         }
+        return false;
+    }
 
-        x:
-        for (int x = 0; x < gridSize;x++) {
-            for (int y = gridSize - 1; y >=0;y--) {
-                if(grid[x][y] == 0){
-                    if(set){
-                        grid[x][y] = getNextTile(Clicks.DOWN, x, y, true);
-                    } else {
-                        if(getNextTile(Clicks.DOWN, x, y, false) != 0){
-                            return true;
-                        }
-                    }
-                    if(grid[x][y] == 0){
-                        continue x;
-                    } else {
-                        changed = true;
-                        if(!played && playSounds)player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
-                    }
+    private void moveOneDown(){
+        boolean playCombined = false;
+        for (int x = 0; x < gridSize;x++){
+            for (int y = gridSize - 2; y >=0;y--){
+                if(grid[x][y] != 0 && grid[x][y+1] == 0){
+                    grid[x][y+1] = grid[x][y];
+                    grid[x][y] = 0;
+                } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y+1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
+                    grid[x][y] = 0;
+                    grid[x][y+1] ++;
+                    combined.add(x + (y+1)*gridSize);
+                    playCombined = true;
                 }
             }
         }
-        return changed;
-    }
-
-    private Integer getNextTile(Clicks click, int x, int y, boolean clear) {
-        int toReturn;
-        switch (click){
-            case LEFT:
-                for(int newX = x + 1; newX < gridSize; newX++){
-                    if(grid[newX][y] != 0){
-                        toReturn = grid[newX][y];
-                        if(clear)grid[newX][y] = 0;
-                        return toReturn;
-                    }
-                }
-                break;
-            case DOWN:
-                for(int newY = y - 1; newY >= 0; newY--){
-                    if(grid[x][newY] != 0){
-                        toReturn = grid[x][newY];
-                        if(clear)grid[x][newY] = 0;
-                        return toReturn;
-                    }
-                }
-                break;
-
-            case RIGHT:
-                for(int newX = x - 1; newX >= 0; newX--){
-                    if(grid[newX][y] != 0){
-                        toReturn = grid[newX][y];
-                        if(clear)grid[newX][y] = 0;
-                        return toReturn;
-                    }
-                }
-                break;
-
-            case UP:
-                for(int newY = y + 1; newY < gridSize; newY++){
-                    if(grid[x][newY] != 0){
-                        toReturn = grid[x][newY];
-                        if(clear)grid[x][newY] = 0;
-                        return toReturn;
-                    }
-                }
-                break;
+        if(playSounds){
+            if(playCombined) {
+                player.playSound(player.getLocation(), combinedSound.bukkitSound(), volume, pitch);
+            } else {
+                player.playSound(player.getLocation(), shift.bukkitSound(), volume, pitch);
+            }
         }
-        return 0;
+        if(!moveDown(false)){
+            this.status = Status.PLAY;
+            combined.clear();
+        }
     }
+
 
     public void onClick(InventoryClickEvent event){
         if(event.getCurrentItem() == null) return;
         if(over) return;
+        if(status != Status.PLAY) return;
         ItemStack item = event.getCurrentItem();
         if(item.isSimilar(this.left)){
             onClick(Clicks.LEFT);
@@ -477,41 +463,23 @@ public class Game {
         switch (click){
             case LEFT:
                 plugin.debug("moving left");
-                if(moveLeft()){
-                    spawn();
-                    build();
-                } else {
-                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
-                }
+
+                if(!moveLeft(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
+
                 break;
             case DOWN:
                 plugin.debug("moving down");
-                if(moveDown()){
-                    spawn();
-                    build();
-                } else {
-                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
-                }
+                if(!moveDown(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 break;
 
             case RIGHT:
                 plugin.debug("moving right");
-                if(moveRight()){
-                    spawn();
-                    build();
-                } else {
-                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
-                }
+                if(!moveRight(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 break;
 
             case UP:
                 plugin.debug("moving up");
-                if(moveUp()){
-                    spawn();
-                    build();
-                } else {
-                    if(playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
-                }
+                if(!moveUp(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 break;
         }
     }
