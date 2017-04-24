@@ -102,6 +102,13 @@ gameBox:
 rules:
   # enable/disable sound
   playSounds: true
+  # if true there will be navigation buttons around the grid in the top inventory
+  #   additionally to the navigation in the bottom inventory
+  topNavigation: false
+  # if true the grid will be surrounded with black
+  surroundTheGrid:
+    enable: true
+    materialData: "160:15"
 
 buttons:
   navigation:

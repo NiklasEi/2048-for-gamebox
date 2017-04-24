@@ -35,6 +35,9 @@ public class GameManager implements IGameManager {
 
     private Map<String,GameRules> gameTypes;
 
+    private boolean topNav, surroundGrid;
+    private ItemStack surroundItemStack;
+
 
     public GameManager(Main plugin){
         this.plugin = plugin;
@@ -43,6 +46,14 @@ public class GameManager implements IGameManager {
         this.statistics = plugin.gameBox.getStatistics();
 
         loadTiles();
+
+        this.topNav = plugin.getConfig().getBoolean("rules.topNavigation", false);
+        this.surroundGrid = plugin.getConfig().getBoolean("rules.surroundTheGrid.enable", true);
+
+        surroundItemStack = plugin.getItemStack(plugin.getConfig().getString("rules.surroundTheGrid.materialData", "160:15"));
+        ItemMeta meta = surroundItemStack.getItemMeta();
+        meta.setDisplayName(ChatColor.AQUA+"");
+        surroundItemStack.setItemMeta(meta);
     }
 
     private void loadTiles() {
@@ -137,7 +148,7 @@ public class GameManager implements IGameManager {
             return GameBox.GAME_NOT_ENOUGH_MONEY;
         }
 
-        games.put(players[0].getUniqueId(), new Game(rule, plugin, players[0], items, playSounds));
+        games.put(players[0].getUniqueId(), new Game(rule, plugin, players[0], items, playSounds, topNav, surroundGrid, surroundItemStack));
         return GameBox.GAME_STARTED;
     }
 

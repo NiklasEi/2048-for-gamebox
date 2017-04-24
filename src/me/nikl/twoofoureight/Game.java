@@ -52,7 +52,7 @@ public class Game {
 
     private ItemStack left, right, up, down;
 
-    public Game(GameRules rule, Main plugin, Player player, Map<Integer, ItemStack> items, boolean playSounds){
+    public Game(GameRules rule, Main plugin, Player player, Map<Integer, ItemStack> items, boolean playSounds, boolean topNav, boolean surroundGrid, ItemStack surroundItemStack){
         this.plugin = plugin;
         this.rule = rule;
         this.playSounds = plugin.getPlaySounds() && playSounds;
@@ -89,18 +89,28 @@ public class Game {
 
         this.inventory = Bukkit.createInventory(null, 54, lang.GAME_TITLE.replace("%score%", String.valueOf(score)));
 
-        for (int y = 0; y < gridSize;y++){
-            for (int x = 0; x < gridSize;x++){
+        if(surroundGrid){
+            for(int i = 0; i<inventory.getSize(); i++){
+                inventory.setItem(i, surroundItemStack);
+            }
+        }
+
+
+        for (int y = 0; y < gridSize; y++) {
+            for (int x = 0; x < gridSize; x++) {
                 grid[x][y] = 0;
-                if(y == 0){
-                    inventory.setItem(position + (y-1)*9 + x, this.up);
-                } else if(y == gridSize-1){
-                    inventory.setItem(position + (y+1)*9 + x, this.down);
-                }
-                if(x == 0){
-                    inventory.setItem(position + (y)*9 + x - 1, this.left);
-                } else if(x == gridSize-1){
-                    inventory.setItem(position + (y)*9 + x + 1, this.right);
+                inventory.setItem(y*9 + x + position, null);
+                if(topNav) {
+                    if (y == 0) {
+                        inventory.setItem(position + (y - 1) * 9 + x, this.up);
+                    } else if (y == gridSize - 1) {
+                        inventory.setItem(position + (y + 1) * 9 + x, this.down);
+                    }
+                    if (x == 0) {
+                        inventory.setItem(position + (y) * 9 + x - 1, this.left);
+                    } else if (x == gridSize - 1) {
+                        inventory.setItem(position + (y) * 9 + x + 1, this.right);
+                    }
                 }
             }
         }
