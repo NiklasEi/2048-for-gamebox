@@ -1,0 +1,1 @@
+- checking for bad nav matData and handling it
