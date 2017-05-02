@@ -6,6 +6,7 @@ import me.nikl.gamebox.data.Statistics;
 import me.nikl.gamebox.game.IGameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -64,9 +65,17 @@ public class GameManager implements IGameManager {
 
         // in items 0 the navigation item is saved
         ItemStack nav = plugin.getItemStack(plugin.getConfig().getString("buttons.navigation.materialData", "ARROW"));
-        if(plugin.getConfig().getBoolean("buttons.navigation.glow")){
+
+        if(nav == null){
+            Bukkit.getConsoleSender().sendMessage(lang.PREFIX + " Wrong configured navigation button");
+            Bukkit.getConsoleSender().sendMessage(lang.PREFIX + "   Please set \"buttons.navigation.materialData\" to a valid value");
+            Bukkit.getConsoleSender().sendMessage(lang.PREFIX + "   using default nav button now");
+
+            nav = new ItemStack(Material.ARROW, 1);
+        } else if(plugin.getConfig().getBoolean("buttons.navigation.glow")){
             nav = plugin.getNms().addGlow(nav);
         }
+
         items.put(0, nav);
 
         ConfigurationSection tiles = plugin.getConfig().getConfigurationSection("tiles");
