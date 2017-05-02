@@ -1,1 +1,2 @@
 - checking for bad nav matData and handling it
+- give link to gamebox when outdated
