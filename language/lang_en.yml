@@ -25,12 +25,14 @@ prefix: "[&32048&r]"
 name: "&12048&r"
 
 gameHelp:
-  - '&1&lEvery turn, a new tile will randomly appear'
-  - '  &1&lin an empty spot on the board,'
-  - '  &1&lwith a value of either 2 or 4.'
+  - '&1&lMove all tiles in a direction by clicking'
+  - '  &1&lone of the navigation buttons'
   - '&1&lTiles slide as far as possible in the chosen'
   - '  &1&ldirection until they are stopped by either'
   - '  &1&lanother tile or the edge of the grid.'
   - '&1&lIf two tiles of the same number collide while'
-  - '  &1&lmoving, they will merge into a tile with the '
+  - '  &1&lmoving, they merge into a tile with the'
   - '  &1&ltotal value of the two tiles that collided.'
+  - '&1&lEvery turn a new tile with a value of '
+  - '  &1&ltwo or four will randomly appear'
+  - '  &1&lin an empty slot on the board.'
