@@ -1,2 +1,8 @@
+
+--------------------------------------------------
+v1.1.1
 - checking for bad nav matData and handling it
 - give link to gamebox when outdated
+- added chinese language file
+- improved default lang file
+- improved default config and added more explanation
