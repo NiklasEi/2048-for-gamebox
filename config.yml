@@ -25,8 +25,8 @@ gameBox:
       lore:
       - ""
       - "&1Cost: &45"
-      - "&1Money rewards start at a score of &6350"
-      - "&1You can win tokens above &61500"
+      - "&1Money rewards start at a score of &6250"
+      - "&1You can win tokens above &61000"
       slot: 20
       cost: 5
       scoreIntervals:
@@ -36,21 +36,18 @@ gameBox:
         # tokens can be used in the GameBox shop
 
         # You can add as many intervals as you want to. The order of the intervals doesn't matter
-        #   the given reward/messages/commands/broadcasts will always be used if the game is finished with a score between the key and the
+        #   the given rewards will always be used if the game is finished with a score between the key and the
         #   next higher key. For the highest key the interval goes to infinity
         0:
           money: 0
           tokens: 0
-        350:
+        250:
           money: 5
         500:
           money: 10
-        1500:
+        1000:
           money: 20
           tokens: 1
-        3000:
-          money: 50
-          tokens: 2
     saveStats:
       materialData: "159:3"
       displayName: "&c&lCompetition"
@@ -60,8 +57,8 @@ gameBox:
       - "&aGood luck!"
       - ""
       - "&1Cost: &450"
-      - "&1Money rewards start at a score of &6350"
-      - "&1You can win tokens above &61500"
+      - "&1Money rewards start at a score of &6250"
+      - "&1You can win tokens above &61000"
       slot: 24
       cost: 50
       # if true the best score of this button is saved
@@ -70,15 +67,15 @@ gameBox:
         0:
           money: 0
           tokens: 0
-        350:
-          money: 5
+        250:
+          money: 30
         500:
-          money: 10
-        1500:
-          money: 20
+          money: 60
+        1000:
+          money: 100
           tokens: 1
-        3000:
-          money: 50
+        2000:
+          money: 250
           tokens: 2
   topListButtons:
     # use the same key as the game you want to display the top list for
@@ -121,6 +118,7 @@ economy:
   enabled: false
 
 # if you want to you can set a lore. Just add a node 'lore' to a tile and make it a list
+#   'glow' is an optional boolean
 tiles:
   1:
     materialData: "WOOL"
