@@ -1,4 +1,6 @@
 
+- replace all non numbers in GB version
+
 --------------------------------------------------
 v1.1.1
 - checking for bad nav matData and handling it
