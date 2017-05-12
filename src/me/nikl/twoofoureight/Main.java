@@ -9,6 +9,7 @@ import me.nikl.gamebox.guis.button.AButton;
 import me.nikl.gamebox.guis.gui.game.GameGui;
 import me.nikl.gamebox.guis.gui.game.TopListPage;
 import me.nikl.gamebox.nms.NMSUtil;
+import me.nikl.gamebox.util.ItemStackUtil;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,7 +31,7 @@ import java.util.logging.Level;
 
 /**
  * Created by Niklas on 14.04.2017.
- * <p>
+ *
  * Main class for the GameBox game 2048
  */
 public class Main extends JavaPlugin {
@@ -48,6 +49,7 @@ public class Main extends JavaPlugin {
     };
 
     private final String[] subCommands = new String[]{"2048", "tiles"};
+
     private final SaveType topListSaveType = SaveType.SCORE;
     private final int playerNum = 1;
 
@@ -91,7 +93,7 @@ public class Main extends JavaPlugin {
 
     private void hook() {
         if (Bukkit.getPluginManager().getPlugin("GameBox") == null || !Bukkit.getPluginManager().getPlugin("GameBox").isEnabled()) {
-            Bukkit.getLogger().log(Level.SEVERE, " GameBox not found");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes( '&', " &cGameBox not found!"));
             Bukkit.getLogger().log(Level.SEVERE, "   Get the newest version here:");
             Bukkit.getLogger().log(Level.SEVERE, "   https://www.spigotmc.org/resources/37273/");
             Bukkit.getPluginManager().disablePlugin(this);
@@ -120,8 +122,9 @@ public class Main extends JavaPlugin {
             if (minVersion[i] < version[i]) break;
             if (minVersion[i].equals(version[i])) continue;
 
-            Bukkit.getLogger().log(Level.WARNING, " Your GameBox is outdated!");
-            Bukkit.getLogger().log(Level.WARNING, " Get the latest version here: https://www.spigotmc.org/resources/37273/");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes( '&', " &cYour GameBox is outdated!"));
+            Bukkit.getLogger().log(Level.WARNING, " Get the latest version here: ");
+            Bukkit.getLogger().log(Level.WARNING, "   https://www.spigotmc.org/resources/37273/");
             Bukkit.getLogger().log(Level.WARNING, " You need at least version " + depends[1][1]);
             Bukkit.getPluginManager().disablePlugin(this);
             disabled = true;
@@ -141,7 +144,7 @@ public class Main extends JavaPlugin {
         gameBox.getPluginManager().registerGame(gameManager, gameID, lang.NAME, playerNum);
 
         int gameGuiSlots = 54;
-        GameGui gameGui = new GameGui(gameBox, guiManager, gameGuiSlots, gameID, "main");
+        GameGui gameGui = new GameGui(gameBox, guiManager, gameGuiSlots, gameID, GUIManager.MAIN_GAME_GUI);
         gameGui.setHelpButton(lang.GAME_HELP);
 
 
@@ -167,7 +170,7 @@ public class Main extends JavaPlugin {
                     continue;
                 }
 
-                ItemStack mat = getItemStack(buttonSec.getString("materialData"));
+                ItemStack mat = ItemStackUtil.getItemStack(buttonSec.getString("materialData"));
                 if (mat == null) {
                     Bukkit.getLogger().log(Level.WARNING, " error loading: gameBox.gameButtons." + buttonID);
                     Bukkit.getLogger().log(Level.WARNING, "     invalid material data");
@@ -179,25 +182,18 @@ public class Main extends JavaPlugin {
                 ItemMeta meta = button.getItemMeta();
 
                 if (buttonSec.isString("displayName")) {
-                    displayName = chatColor(buttonSec.getString("displayName"));
+                    displayName = GameBox.chatColor(buttonSec.getString("displayName"));
                     meta.setDisplayName(displayName);
                 }
 
                 if (buttonSec.isList("lore")) {
                     lore = new ArrayList<>(buttonSec.getStringList("lore"));
                     for (int i = 0; i < lore.size(); i++) {
-                        lore.set(i, chatColor(lore.get(i)));
+                        lore.set(i, GameBox.chatColor(lore.get(i)));
                     }
                     meta.setLore(lore);
                 }
 
-
-                /*
-                // ToDo: if it is a two player game!
-
-                guiManager.registerGameGUI(gameID, buttonID, new StartMultiplayerGamePage(gameBox, guiManager, 54, gameID, buttonID, chatColor(buttonSec.getString("inviteGuiTitle","&4title not set in config"))));
-                button.setAction(ClickAction.CHANGE_GAME_GUI);
-                */
                 button.setAction(ClickAction.START_GAME);
 
                 button.setItemMeta(meta);
@@ -236,21 +232,21 @@ public class Main extends JavaPlugin {
             ConfigurationSection mainButtonSec = config.getConfigurationSection("gameBox.mainButton");
             if (!mainButtonSec.isString("materialData")) break getMainButton;
 
-            ItemStack gameButton = getItemStack(mainButtonSec.getString("materialData"));
+            ItemStack gameButton = ItemStackUtil.getItemStack(mainButtonSec.getString("materialData"));
             if (gameButton == null) {
                 gameButton = (new ItemStack(Material.STAINED_CLAY));
             }
             ItemMeta meta = gameButton.getItemMeta();
-            meta.setDisplayName(chatColor(mainButtonSec.getString("displayName", lang.NAME)));
+            meta.setDisplayName(GameBox.chatColor(mainButtonSec.getString("displayName", lang.NAME)));
             if (mainButtonSec.isList("lore")) {
                 ArrayList<String> lore = new ArrayList<>(mainButtonSec.getStringList("lore"));
                 for (int i = 0; i < lore.size(); i++) {
-                    lore.set(i, chatColor(lore.get(i)));
+                    lore.set(i, GameBox.chatColor(lore.get(i)));
                 }
                 meta.setLore(lore);
             }
             gameButton.setItemMeta(meta);
-            guiManager.registerGameGUI(gameID, "main", gameGui, gameButton, this.subCommands);
+            guiManager.registerGameGUI(gameID, GUIManager.MAIN_GAME_GUI, gameGui, gameButton, this.subCommands);
         } else {
             Bukkit.getLogger().log(Level.WARNING, " Missing or wrong configured main button in the configuration file!");
         }
@@ -284,7 +280,7 @@ public class Main extends JavaPlugin {
                     continue;
                 }
 
-                ItemStack mat = getItemStack(buttonSec.getString("materialData"));
+                ItemStack mat = ItemStackUtil.getItemStack(buttonSec.getString("materialData"));
                 if (mat == null) {
                     Bukkit.getLogger().log(Level.WARNING, " error loading: gameBox.topListButtons." + buttonID);
                     Bukkit.getLogger().log(Level.WARNING, "     invalid material data");
@@ -296,14 +292,14 @@ public class Main extends JavaPlugin {
                 ItemMeta meta = button.getItemMeta();
 
                 if (buttonSec.isString("displayName")) {
-                    meta.setDisplayName(chatColor(buttonSec.getString("displayName")));
+                    meta.setDisplayName(GameBox.chatColor(buttonSec.getString("displayName")));
                 }
 
 
                 if (buttonSec.isList("lore")) {
                     lore = new ArrayList<>(buttonSec.getStringList("lore"));
                     for (int i = 0; i < lore.size(); i++) {
-                        lore.set(i, chatColor(lore.get(i)));
+                        lore.set(i, GameBox.chatColor(lore.get(i)));
                     }
                     meta.setLore(lore);
                 }
@@ -330,55 +326,19 @@ public class Main extends JavaPlugin {
                 if (buttonSec.isList("skullLore")) {
                     lore = new ArrayList<>(buttonSec.getStringList("skullLore"));
                     for (int i = 0; i < lore.size(); i++) {
-                        lore.set(i, chatColor(lore.get(i)));
+                        lore.set(i, GameBox.chatColor(lore.get(i)));
                     }
                 } else {
                     lore = new ArrayList<>(Arrays.asList("", "No lore specified in the config!"));
                 }
 
-                TopListPage topListPage = new TopListPage(gameBox, guiManager, 54, gameID, buttonID + GUIManager.TOP_LIST_KEY_ADDON, buttonSec.isString("inventoryTitle") ? ChatColor.translateAlternateColorCodes('&', buttonSec.getString("inventoryTitle")) : "Title missing in config", this.topListSaveType, lore);
+                TopListPage topListPage = new TopListPage(gameBox, guiManager, 54, gameID,
+                        buttonID + GUIManager.TOP_LIST_KEY_ADDON,
+                        GameBox.chatColor(buttonSec.getString("inventoryTitle", "Title missing in config")),
+                        this.topListSaveType, lore);
 
                 guiManager.registerTopList(gameID, buttonID, topListPage);
             }
-        }
-    }
-
-    private String chatColor(String message){
-        return ChatColor.translateAlternateColorCodes('&', message);
-    }
-
-    protected ItemStack getItemStack(String itemPath) {
-        Material mat;
-        short data;
-        String[] obj = itemPath.split(":");
-
-        if (obj.length == 2) {
-            try {
-                mat = Material.matchMaterial(obj[0]);
-            } catch (Exception e) {
-                return null; // material name doesn't exist
-            }
-
-            try {
-                data = Short.valueOf(obj[1]);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                return null; // data not a number
-            }
-
-            //noinspection deprecation
-            if (mat == null) return null;
-            ItemStack stack = new ItemStack(mat);
-            stack.setDurability(data);
-            return stack;
-        } else {
-            try {
-                mat = Material.matchMaterial(obj[0]);
-            } catch (Exception e) {
-                return null; // material name doesn't exist
-            }
-            //noinspection deprecation
-            return (mat == null ? null : new ItemStack(mat));
         }
     }
 

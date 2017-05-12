@@ -4,6 +4,7 @@ import me.nikl.gamebox.GameBox;
 import me.nikl.gamebox.Permissions;
 import me.nikl.gamebox.data.Statistics;
 import me.nikl.gamebox.game.IGameManager;
+import me.nikl.gamebox.util.ItemStackUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -51,7 +52,7 @@ public class GameManager implements IGameManager {
         this.topNav = plugin.getConfig().getBoolean("rules.topNavigation", false);
         this.surroundGrid = plugin.getConfig().getBoolean("rules.surroundTheGrid.enable", true);
 
-        surroundItemStack = plugin.getItemStack(plugin.getConfig().getString("rules.surroundTheGrid.materialData", "160:15"));
+        surroundItemStack = ItemStackUtil.getItemStack(plugin.getConfig().getString("rules.surroundTheGrid.materialData", "160:15"));
         ItemMeta meta = surroundItemStack.getItemMeta();
         meta.setDisplayName(ChatColor.AQUA+"");
         surroundItemStack.setItemMeta(meta);
@@ -64,7 +65,7 @@ public class GameManager implements IGameManager {
         }
 
         // in items 0 the navigation item is saved
-        ItemStack nav = plugin.getItemStack(plugin.getConfig().getString("buttons.navigation.materialData", "ARROW"));
+        ItemStack nav = ItemStackUtil.getItemStack(plugin.getConfig().getString("buttons.navigation.materialData", "ARROW"));
 
         if(nav == null){
             Bukkit.getConsoleSender().sendMessage(lang.PREFIX + " Wrong configured navigation button");
@@ -88,7 +89,7 @@ public class GameManager implements IGameManager {
                 Bukkit.getLogger().log(Level.SEVERE, "Configuration error in the tile: " + key);
                 continue;
             }
-            ItemStack item = plugin.getItemStack(tiles.getString(key + ".materialData"));
+            ItemStack item = ItemStackUtil.getItemStack(tiles.getString(key + ".materialData"));
 
             if(tiles.getBoolean(key + ".glow")){
                 item = plugin.getNms().addGlow(item);
