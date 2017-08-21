@@ -1,5 +1,6 @@
 package me.nikl.twoofoureight;
 
+import me.nikl.gamebox.GameBoxSettings;
 import me.nikl.gamebox.Permissions;
 import me.nikl.gamebox.Sounds;
 import me.nikl.gamebox.data.SaveType;
@@ -140,7 +141,11 @@ public class Game extends BukkitRunnable{
         meta.setDisplayName(lang.GAME_BUTTON_DOWN);
         this.down.setItemMeta(meta);
 
-        this.inventory = Bukkit.createInventory(null, 54, lang.GAME_TITLE.replace("%score%", String.valueOf(score)));
+        String title= lang.GAME_TITLE.replace("%score%", String.valueOf(score));
+        if(GameBoxSettings.checkInventoryLength && title.length() > 32){
+            title = "Title is too long!";
+        }
+        this.inventory = Bukkit.createInventory(null, 54, title);
 
         if(surroundGrid){
             for(int i = 0; i<inventory.getSize(); i++){
