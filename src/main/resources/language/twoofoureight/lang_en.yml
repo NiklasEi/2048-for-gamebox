@@ -12,14 +12,12 @@ game:
   gameOverNoPay: " &2You reached a score of &6%score%"
   inventoryTitles:
     gameTitle: "&92048             Score: %score%"
-    lost: "&92048    &4Game Over  &9Score: %score%"
+    lost: "&92048  &4Game Over  &9Score: %score%"
   buttons:
-    up: '&3Up'
-    down: '&3Down'
-    right: '&3Right'
-    left: '&3Left'
-
-
+    up: '&3Up ↑'
+    down: '&3Down ↓'
+    right: '&3Right →'
+    left: '&3Left ←'
 
 prefix: "[&32048&r]"
 name: "&12048&r"

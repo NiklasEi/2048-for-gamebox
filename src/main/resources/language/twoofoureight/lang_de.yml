@@ -12,13 +12,12 @@ game:
   gameOverNoPay: " &2Du hast &6%score%&2 Punkte erreicht"
   inventoryTitles:
     gameTitle: "&92048             &6Punkte: %score%"
-    lost: "&92048    &4Game Over  &6Punkte: %score%"
+    lost: "&92048   &4Game Over  &6Punkte: %score%"
   buttons:
     up: '&3Hoch'
     down: '&3Runter'
     right: '&3Rechts'
     left: '&3Links'
-
 
 prefix: "[&32048&r]"
 name: "&12048&r"

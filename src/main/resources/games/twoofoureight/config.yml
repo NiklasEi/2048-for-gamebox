@@ -95,7 +95,6 @@ gameBox:
       - '&6Rank:&1 %rank%'
       - '&6Score:&1 %score%'
 
-
 rules:
   # enable/disable sound
   playSounds: true
@@ -107,7 +106,10 @@ rules:
     enable: true
     materialData: "160:15"
 
+# Buttons in the game
 buttons:
+  # Navigation buttons (up, down, right and left)
+  #   Display names are separately in the language files.
   navigation:
     materialData: "ARROW"
     glow: false

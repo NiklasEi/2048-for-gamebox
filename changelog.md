@@ -1,16 +1,19 @@
 
-
+### v 2.0.0
+- update to gamebox v2
+- updated config and lang files
 - changed id!
   - '2048' -> 'twoofoureight'
---------------------------------------------------
-v 1.3.1
+#
+
+### v 1.3.1
 - check inventory title length if GB flag is set
 
-v 1.3.0
+### v 1.3.0
 - push GB dep to 1.5.0
   - now compatible with /gba reload
 
-v 1.2.0
+### v 1.2.0
 - centralised more code to GameBox
   - use static main-key from GUIManager (GameBox) for guis
   - chat color in Main class
@@ -22,7 +25,7 @@ v 1.2.0
 - correct lang_en
 
 
-v1.1.1
+### v1.1.1
 - checking for bad nav matData and handling it
 - give link to gamebox when outdated
 - added chinese language file

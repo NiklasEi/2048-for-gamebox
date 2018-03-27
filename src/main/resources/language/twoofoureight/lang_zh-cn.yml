@@ -9,7 +9,7 @@ game:
   gameOverNoPay: " &a你获得了 &6%score%"
   inventoryTitles:
     gameTitle: "&92048             分数: %score%"
-    lost: "&92048    &4游戏结束  &9分数: %score%"
+    lost: "&92048   &4游戏结束  &9分数: %score%"
   buttons:
     up: '&3↑上↑'
     down: '&3↓下↓'
