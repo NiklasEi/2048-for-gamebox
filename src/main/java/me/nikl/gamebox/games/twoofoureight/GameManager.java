@@ -31,7 +31,7 @@ import java.util.logging.Level;
  */
 
 public class GameManager extends EasyManager {
-    private Tofe plugin;
+    private Tofe tofe;
     private Map<UUID, Game> games = new HashMap<>();
     private Language lang;
     private DataBase statistics;
@@ -40,42 +40,36 @@ public class GameManager extends EasyManager {
     private boolean topNav, surroundGrid;
     private ItemStack surroundItemStack;
 
-    public GameManager(Tofe plugin){
-        this.plugin = plugin;
-        this.lang = (Language) plugin.getGameLang();
-        this.statistics = plugin.getGameBox().getDataBase();
+    public GameManager(Tofe tofe){
+        this.tofe = tofe;
+        this.lang = (Language) tofe.getGameLang();
+        this.statistics = tofe.getGameBox().getDataBase();
         loadTiles();
-        this.topNav = plugin.getConfig().getBoolean("rules.topNavigation", false);
-        this.surroundGrid = plugin.getConfig().getBoolean("rules.surroundTheGrid.enable", true);
-        surroundItemStack = ItemStackUtility.getItemStack(plugin.getConfig().getString("rules.surroundTheGrid.materialData", "160:15"));
+        this.topNav = tofe.getConfig().getBoolean("rules.topNavigation", false);
+        this.surroundGrid = tofe.getConfig().getBoolean("rules.surroundTheGrid.enable", true);
+        surroundItemStack = ItemStackUtility.getItemStack(tofe.getConfig().getString("rules.surroundTheGrid.materialData", "160:15"));
         ItemMeta meta = surroundItemStack.getItemMeta();
         meta.setDisplayName(ChatColor.AQUA+"");
         surroundItemStack.setItemMeta(meta);
     }
 
     private void loadTiles() {
-        if(!plugin.getConfig().isConfigurationSection("tiles")){
+        if(!tofe.getConfig().isConfigurationSection("tiles")){
             Bukkit.getLogger().log(Level.SEVERE, "Configuration error.. cannot find any tiles");
             return;
         }
-
         // in items 0 the navigation item is saved
-        ItemStack nav = ItemStackUtility.getItemStack(plugin.getConfig().getString("buttons.navigation.materialData", "ARROW"));
-
+        ItemStack nav = ItemStackUtility.getItemStack(tofe.getConfig().getString("buttons.navigation.materialData", "ARROW"));
         if(nav == null){
             Bukkit.getConsoleSender().sendMessage(lang.PREFIX + " Wrong configured navigation button");
             Bukkit.getConsoleSender().sendMessage(lang.PREFIX + "   Please set \"buttons.navigation.materialData\" to a valid value");
             Bukkit.getConsoleSender().sendMessage(lang.PREFIX + "   using default nav button now");
-
             nav = new ItemStack(Material.ARROW, 1);
-        } else if(plugin.getConfig().getBoolean("buttons.navigation.glow")){
+        } else if(tofe.getConfig().getBoolean("buttons.navigation.glow")){
             nav = NmsFactory.getNmsUtility().addGlow(nav);
         }
-
         items.put(0, nav);
-
-        ConfigurationSection tiles = plugin.getConfig().getConfigurationSection("tiles");
-
+        ConfigurationSection tiles = tofe.getConfig().getConfigurationSection("tiles");
         int counter = 1;
         String displayName;
         List<String> lore;
@@ -85,18 +79,18 @@ public class GameManager extends EasyManager {
                 continue;
             }
             ItemStack item = ItemStackUtility.getItemStack(tiles.getString(key + ".materialData"));
-
+            if (item == null) {
+                tofe.warn("Tile '" + key + "' cannot be loaded.");
+                continue;
+            }
             if(tiles.getBoolean(key + ".glow")){
                 item = NmsFactory.getNmsUtility().addGlow(item);
             }
-
             ItemMeta meta = item.getItemMeta();
-
             if(tiles.isString(key + ".displayName")){
                 displayName = chatColor(tiles.getString(key + ".displayName"));
                 meta.setDisplayName(displayName);
             }
-
             if(tiles.isList(key + ".lore")){
                 lore = new ArrayList<>(tiles.getStringList(key + ".lore"));
                 for(int i = 0; i < lore.size();i++){
@@ -104,11 +98,8 @@ public class GameManager extends EasyManager {
                 }
                 meta.setLore(lore);
             }
-
             item.setItemMeta(meta);
-
-            plugin.debug(" load item Nr. " + counter + "   it is: " + item.toString());
-
+            tofe.debug(" load item Nr. " + counter + "   it is: " + item.toString());
             items.put(counter, item);
             counter ++;
         }
@@ -121,7 +112,7 @@ public class GameManager extends EasyManager {
 
     @Override
     public void onInventoryClick(InventoryClickEvent inventoryClickEvent) {
-        // ToDo
+        tofe.debug(" click in manager    rawslot: " + inventoryClickEvent.getRawSlot());
         games.get(inventoryClickEvent.getWhoClicked().getUniqueId()).onClick(inventoryClickEvent);
     }
 
@@ -150,7 +141,7 @@ public class GameManager extends EasyManager {
             throw new GameStartException(GameStartException.Reason.NOT_ENOUGH_MONEY);
         }
 
-        games.put(players[0].getUniqueId(), new Game(rule, plugin, players[0], items, playSounds, topNav, surroundGrid, surroundItemStack));
+        games.put(players[0].getUniqueId(), new Game(rule, tofe, players[0], items, playSounds, topNav, surroundGrid, surroundItemStack));
     }
 
     @Override
@@ -163,7 +154,7 @@ public class GameManager extends EasyManager {
     public void loadGameRules(ConfigurationSection buttonSec, String buttonID) {
         double cost = buttonSec.getDouble("cost", 0.);
         boolean saveStats = buttonSec.getBoolean("saveStats", false);
-        gameTypes.put(buttonID, new GameRules(plugin, buttonID, cost, saveStats));
+        gameTypes.put(buttonID, new GameRules(tofe, buttonID, cost, saveStats));
     }
 
     @Override
@@ -173,6 +164,6 @@ public class GameManager extends EasyManager {
 
 
     private boolean pay(Player[] player, double cost) {
-        return plugin.payIfNecessary(player[0], cost);
+        return tofe.payIfNecessary(player[0], cost);
     }
 }

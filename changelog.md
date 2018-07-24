@@ -1,3 +1,6 @@
+### v 2.1.0
+- compatibility with minecraft 1.13
+- better defaults with Arrows in the navigation button names
 
 ### v 2.0.0
 - update to gamebox v2

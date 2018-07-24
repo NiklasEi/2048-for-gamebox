@@ -7,7 +7,6 @@ import me.nikl.gamebox.games.TofeMain;
 import me.nikl.gamebox.nms.NmsFactory;
 import me.nikl.gamebox.utility.Permission;
 import me.nikl.gamebox.utility.Sound;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -27,140 +26,51 @@ import java.util.Set;
  *
  */
 public class Game extends BukkitRunnable{
-
-    private Tofe plugin;
-
+    private Tofe tofe;
     private GameRules rule;
     private boolean playSounds;
     private Language lang;
-
-    private Map<Integer, ItemStack> items;
-
     private Inventory inventory;
-
     private int gridSize = 4;
-
     private Player player;
-
+    private Map<Integer, ItemStack> items;
     private double spawnHigherTile = 0.2;
-
     private Integer[][] grid = new Integer[gridSize][gridSize];
-
     private Random random;
-
     private int position = 11, score = 0;
-
     private boolean over = false;
-
     private Status status = Status.PLAY;
-
-    @Override
-    public void run() {
-        plugin.debug("run");
-        if(over) return;
-        switch (status){
-            case PLAY:
-                return;
-            case LEFT:
-                moveOneLeft();
-                if(status != Status.LEFT){
-                    spawn();
-                }
-                build();
-
-                break;
-            case DOWN:
-                moveOneDown();
-                if(status != Status.DOWN){
-                    spawn();
-                }
-                build();
-
-                break;
-
-            case RIGHT:
-                moveOneRight();
-                if(status != Status.RIGHT){
-                    spawn();
-                }
-                build();
-                break;
-
-            case UP:
-                moveOneUp();
-                if(status != Status.UP){
-                    spawn();
-                }
-                build();
-
-                break;
-        }
-    }
-
-    public enum Clicks{
-        LEFT, RIGHT, UP, DOWN
-    }
-
-    private enum Status{
-        PLAY, LEFT, RIGHT, UP, DOWN
-    }
-
     private Sound gameOver = Sound.ANVIL_LAND, combinedSound = Sound.ITEM_PICKUP, shift = Sound.WOLF_WALK, no = Sound.VILLAGER_NO;
-
     private float volume = 0.5f, pitch= 1f;
-
     private ItemStack left, right, up, down;
-
     private Set<Integer> combined = new HashSet<>();
 
-    public Game(GameRules rule, Tofe plugin, Player player, Map<Integer, ItemStack> items, boolean playSounds, boolean topNav, boolean surroundGrid, ItemStack surroundItemStack){
-        this.plugin = plugin;
+    public Game(GameRules rule, Tofe tofe, Player player, Map<Integer, ItemStack> items, boolean playSounds, boolean topNav, boolean surroundGrid, ItemStack surroundItemStack){
+        this.tofe = tofe;
         this.rule = rule;
-        this.playSounds = plugin.getSettings().isPlaySounds() && playSounds;
-        this.lang = (Language) plugin.getGameLang();
-
+        this.playSounds = tofe.getSettings().isPlaySounds() && playSounds;
+        this.lang = (Language) tofe.getGameLang();
         this.player = player;
-
         this.random = new Random(System.currentTimeMillis());
-
         this.items = new HashMap<>(items);
-
-        this.left = items.get(0).clone();
-        this.right = items.get(0).clone();
-        this.up = items.get(0).clone();
-        this.down = items.get(0).clone();
-
-        this.items.remove(0);
-
-        ItemMeta meta = left.getItemMeta();
-        meta.setDisplayName(lang.GAME_BUTTON_LEFT);
-        this.left.setItemMeta(meta);
-
-        meta = right.getItemMeta();
-        meta.setDisplayName(lang.GAME_BUTTON_RIGHT);
-        this.right.setItemMeta(meta);
-
-        meta = up.getItemMeta();
-        meta.setDisplayName(lang.GAME_BUTTON_UP);
-        this.up.setItemMeta(meta);
-
-        meta = down.getItemMeta();
-        meta.setDisplayName(lang.GAME_BUTTON_DOWN);
-        this.down.setItemMeta(meta);
+        loadIcons();
 
         String title= lang.GAME_TITLE.replace("%score%", String.valueOf(score));
         if(GameBoxSettings.checkInventoryLength && title.length() > 32){
             title = "Title is too long!";
         }
-        this.inventory = plugin.createInventory(54, title);
+        this.inventory = tofe.createInventory(54, title);
+        prepareInventory(topNav, surroundGrid, surroundItemStack);
+        build();
+        this.runTaskTimer(tofe.getGameBox(), 0, 3);
+    }
 
+    private void prepareInventory(boolean topNav, boolean surroundGrid, ItemStack surroundItemStack) {
         if(surroundGrid){
             for(int i = 0; i<inventory.getSize(); i++){
                 inventory.setItem(i, surroundItemStack);
             }
         }
-
-
         for (int y = 0; y < gridSize; y++) {
             for (int x = 0; x < gridSize; x++) {
                 grid[x][y] = 0;
@@ -179,19 +89,37 @@ public class Game extends BukkitRunnable{
                 }
             }
         }
-
         spawn();
         spawn();
         player.openInventory(inventory);
+        player.getOpenInventory().getBottomInventory().setItem(Clicks.UP.getNavButtonSlot(), up);
+        player.getOpenInventory().getBottomInventory().setItem(Clicks.LEFT.getNavButtonSlot(), left);
+        player.getOpenInventory().getBottomInventory().setItem(Clicks.RIGHT.getNavButtonSlot(), right);
+        player.getOpenInventory().getBottomInventory().setItem(Clicks.DOWN.getNavButtonSlot(), down);
+    }
 
-        player.getOpenInventory().getBottomInventory().setItem(13, up);
-        player.getOpenInventory().getBottomInventory().setItem(21, left);
-        player.getOpenInventory().getBottomInventory().setItem(23, right);
-        player.getOpenInventory().getBottomInventory().setItem(31, down);
+    private void loadIcons() {
+        this.left = items.get(0).clone();
+        this.right = items.get(0).clone();
+        this.up = items.get(0).clone();
+        this.down = items.get(0).clone();
+        items.remove(0);
 
-        build();
+        ItemMeta meta = left.getItemMeta();
+        meta.setDisplayName(lang.GAME_BUTTON_LEFT);
+        this.left.setItemMeta(meta);
 
-        this.runTaskTimer(plugin.getGameBox(), 0, 3);
+        meta = right.getItemMeta();
+        meta.setDisplayName(lang.GAME_BUTTON_RIGHT);
+        this.right.setItemMeta(meta);
+
+        meta = up.getItemMeta();
+        meta.setDisplayName(lang.GAME_BUTTON_UP);
+        this.up.setItemMeta(meta);
+
+        meta = down.getItemMeta();
+        meta.setDisplayName(lang.GAME_BUTTON_DOWN);
+        this.down.setItemMeta(meta);
     }
 
     private void build() {
@@ -228,7 +156,7 @@ public class Game extends BukkitRunnable{
             onGameEnd();
             over = true;
             if(playSounds)player.playSound(player.getLocation(), gameOver.bukkitSound(), volume, pitch);
-            plugin.debug("game is over");
+            tofe.debug("game is over");
         }
     }
 
@@ -240,7 +168,7 @@ public class Game extends BukkitRunnable{
         if(reward <= 0){
             player.sendMessage(lang.PREFIX + lang.GAME_OVER_NO_PAY.replaceAll("%score%", score +""));
         } else {
-            if(plugin.getSettings().isEconEnabled() && Permission.BYPASS_GAME.hasPermission(player, TofeMain.TWO_O_FOUR_EIGHT)){
+            if(tofe.getSettings().isEconEnabled() && Permission.BYPASS_GAME.hasPermission(player, TofeMain.TWO_O_FOUR_EIGHT)){
                 GameBox.econ.depositPlayer(player, reward);
                 player.sendMessage(lang.PREFIX + lang.GAME_WON_MONEY.replace("%reward%", reward+"").replace("%score%", score+""));
             } else {
@@ -248,12 +176,12 @@ public class Game extends BukkitRunnable{
             }
         }
         if(rule.isSaveStats()){
-            plugin.getGameBox().getDataBase().addStatistics(player.getUniqueId(), TofeMain.TWO_O_FOUR_EIGHT, rule.getKey(), (double) score, SaveType.SCORE);
+            tofe.getGameBox().getDataBase().addStatistics(player.getUniqueId(), TofeMain.TWO_O_FOUR_EIGHT, rule.getKey(), (double) score, SaveType.SCORE);
         }
         int token = rule.getTokenToWin(score);
         if(token > 0){
             // Todo wrong message. Run over replacement for GameBox.wonToken()
-            plugin.getGameBox().getApi().giveToken(player, token);
+            tofe.getGameBox().getApi().giveToken(player, token);
         }
     }
 
@@ -398,7 +326,7 @@ public class Game extends BukkitRunnable{
                     if(set)this.status = Status.DOWN;
                     return true;
                 } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y+1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
-                    plugin.debug("continue because of   x: " + x + "   y: " + y);
+                    tofe.debug("continue because of   x: " + x + "   y: " + y);
                     if(set)this.status = Status.DOWN;
                     return true;
                 }
@@ -440,46 +368,104 @@ public class Game extends BukkitRunnable{
         if(event.getCurrentItem() == null) return;
         if(over) return;
         if(status != Status.PLAY) return;
-        ItemStack item = event.getCurrentItem();
-        if(item.isSimilar(this.left)){
-            onClick(Clicks.LEFT);
-            return;
-        } else if(item.isSimilar(this.right)){
-            onClick(Clicks.RIGHT);
-            return;
-        } else if(item.isSimilar(this.up)){
-            onClick(Clicks.UP);
-            return;
-        } else if(item.isSimilar(this.down)){
-            onClick(Clicks.DOWN);
-            return;
+        try {
+            onClick(Clicks.getBySlot(event.getSlot()));
+        } catch (IllegalArgumentException ignore) {
+            tofe.debug("no nav-button in " + event.getSlot());
+            // just return
         }
     }
 
     public void onClick(Clicks click){
-        plugin.debug("clicked");
+        tofe.debug("clicked");
         switch (click){
             case LEFT:
-                plugin.debug("moving left");
+                tofe.debug("moving left");
 
                 if(!moveLeft(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
 
                 break;
             case DOWN:
-                plugin.debug("moving down");
+                tofe.debug("moving down");
                 if(!moveDown(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 break;
 
             case RIGHT:
-                plugin.debug("moving right");
+                tofe.debug("moving right");
                 if(!moveRight(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 break;
 
             case UP:
-                plugin.debug("moving up");
+                tofe.debug("moving up");
                 if(!moveUp(true) && playSounds)player.playSound(player.getLocation(), no.bukkitSound(), volume, pitch);
                 break;
         }
     }
 
+    @Override
+    public void run() {
+        tofe.debug("run");
+        if(over) return;
+        switch (status){
+            case PLAY:
+                return;
+            case LEFT:
+                moveOneLeft();
+                if(status != Status.LEFT){
+                    spawn();
+                }
+                build();
+
+                break;
+            case DOWN:
+                moveOneDown();
+                if(status != Status.DOWN){
+                    spawn();
+                }
+                build();
+
+                break;
+
+            case RIGHT:
+                moveOneRight();
+                if(status != Status.RIGHT){
+                    spawn();
+                }
+                build();
+                break;
+
+            case UP:
+                moveOneUp();
+                if(status != Status.UP){
+                    spawn();
+                }
+                build();
+
+                break;
+        }
+    }
+
+    public enum Clicks{
+        LEFT(21), RIGHT(23), UP(13), DOWN(31);
+
+        private int navButtonSlot;
+        Clicks(int navButtonSlot) {
+            this.navButtonSlot = navButtonSlot;
+        }
+
+        public int getNavButtonSlot() {
+            return navButtonSlot;
+        }
+
+        public static Clicks getBySlot(int slot) {
+            for (Clicks clicks : Clicks.values()) {
+                if (clicks.getNavButtonSlot() == slot) return clicks;
+            }
+            throw new IllegalArgumentException("No navigation button in slot " + slot);
+        }
+    }
+
+    private enum Status{
+        PLAY, LEFT, RIGHT, UP, DOWN
+    }
 }
