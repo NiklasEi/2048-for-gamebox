@@ -17,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -44,6 +45,8 @@ public class Game extends BukkitRunnable{
     private float volume = 0.5f, pitch= 1f;
     private ItemStack left, right, up, down;
     private Set<Integer> combined = new HashSet<>();
+    private GameState lastState;
+    private ItemStack undoLastMoveButton;
 
     public Game(GameRules rule, Tofe tofe, Player player, Map<Integer, ItemStack> items, boolean playSounds, boolean topNav, boolean surroundGrid, ItemStack surroundItemStack){
         this.tofe = tofe;
@@ -53,6 +56,7 @@ public class Game extends BukkitRunnable{
         this.player = player;
         this.random = new Random(System.currentTimeMillis());
         this.items = new HashMap<>(items);
+        this.undoLastMoveButton = ((GameManager)tofe.getGameManager()).getUndoLastMoveButton();
         loadIcons();
 
         String title= lang.GAME_TITLE.replace("%score%", String.valueOf(score));
@@ -61,6 +65,8 @@ public class Game extends BukkitRunnable{
         }
         this.inventory = tofe.createInventory(54, title);
         prepareInventory(topNav, surroundGrid, surroundItemStack);
+        this.lastState = new GameState(gridSize);
+        lastState.set(score, grid);
         build();
         this.runTaskTimer(tofe.getGameBox(), 0, 3);
     }
@@ -88,6 +94,9 @@ public class Game extends BukkitRunnable{
                     }
                 }
             }
+        }
+        if (rule.isUndoLastMove()) {
+            player.getOpenInventory().getBottomInventory().setItem(25, undoLastMoveButton);
         }
         spawn();
         spawn();
@@ -201,7 +210,7 @@ public class Game extends BukkitRunnable{
         for (int y = 0; y < gridSize;y++){
             for (int x = 1; x < gridSize;x++) {
                 if((grid[x][y] != 0 && grid[x-1][y] == 0)
-                        || (grid[x][y] != 0 && grid[x][y] == grid[x-1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x-1+y*gridSize))){
+                        || (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x - 1][y]) && !combined.contains(x+y*gridSize) && !combined.contains(x-1+y*gridSize))){
                     if(set)this.status = Status.LEFT;
                     return true;
                 }
@@ -217,7 +226,7 @@ public class Game extends BukkitRunnable{
                 if(grid[x][y] != 0 && grid[x-1][y] == 0){
                     grid[x-1][y] = grid[x][y];
                     grid[x][y] = 0;
-                } else if (grid[x][y] != 0 && grid[x][y] == grid[x-1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x-1+y*gridSize)){
+                } else if (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x - 1][y]) && !combined.contains(x+y*gridSize) && !combined.contains(x-1+y*gridSize)){
                     grid[x][y] = 0;
                     grid[x-1][y] ++;
                     combined.add(x-1 + y*gridSize);
@@ -241,7 +250,7 @@ public class Game extends BukkitRunnable{
     private boolean moveRight(boolean set){
         for (int y = 0; y < gridSize;y++){
             for (int x = gridSize - 2; x >= 0 ;x--){
-                if((grid[x][y] != 0 && grid[x+1][y] == 0) || (grid[x][y] != 0 && grid[x][y] == grid[x+1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x+1+y*gridSize))){
+                if((grid[x][y] != 0 && grid[x+1][y] == 0) || (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x + 1][y]) && !combined.contains(x+y*gridSize) && !combined.contains(x+1+y*gridSize))){
                     if(set)this.status = Status.RIGHT;
                     return true;
                 }
@@ -257,7 +266,7 @@ public class Game extends BukkitRunnable{
                 if(grid[x][y] != 0 && grid[x+1][y] == 0){
                     grid[x+1][y] = grid[x][y];
                     grid[x][y] = 0;
-                } else if (grid[x][y] != 0 && grid[x][y] == grid[x+1][y] && !combined.contains(x+y*gridSize) && !combined.contains(x+1+y*gridSize)){
+                } else if (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x + 1][y]) && !combined.contains(x+y*gridSize) && !combined.contains(x+1+y*gridSize)){
                     grid[x][y] = 0;
                     grid[x+1][y] ++;
                     combined.add(x+1 + y*gridSize);
@@ -281,7 +290,7 @@ public class Game extends BukkitRunnable{
     private boolean moveUp(boolean set){
         for (int x = 0; x < gridSize;x++){
             for (int y = 1; y < gridSize;y++){
-                if((grid[x][y] != 0 && grid[x][y-1] == 0) || (grid[x][y] != 0 && grid[x][y] == grid[x][y-1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y-1)*gridSize))){
+                if((grid[x][y] != 0 && grid[x][y-1] == 0) || (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x][y - 1]) && !combined.contains(x+y*gridSize) && !combined.contains(x+(y-1)*gridSize))){
                     if(set) this.status = Status.UP;
                     return true;
                 }
@@ -297,7 +306,7 @@ public class Game extends BukkitRunnable{
                 if(grid[x][y] != 0 && grid[x][y-1] == 0){
                     grid[x][y-1] = grid[x][y];
                     grid[x][y] = 0;
-                } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y-1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y-1)*gridSize)){
+                } else if (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x][y - 1]) && !combined.contains(x+y*gridSize) && !combined.contains(x+(y-1)*gridSize)){
                     grid[x][y] = 0;
                     grid[x][y-1] ++;
                     combined.add(x + (y-1)*gridSize);
@@ -325,7 +334,7 @@ public class Game extends BukkitRunnable{
                 if(grid[x][y] != 0 && grid[x][y+1] == 0){
                     if(set)this.status = Status.DOWN;
                     return true;
-                } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y+1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
+                } else if (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x][y + 1]) && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
                     tofe.debug("continue because of   x: " + x + "   y: " + y);
                     if(set)this.status = Status.DOWN;
                     return true;
@@ -342,7 +351,7 @@ public class Game extends BukkitRunnable{
                 if(grid[x][y] != 0 && grid[x][y+1] == 0){
                     grid[x][y+1] = grid[x][y];
                     grid[x][y] = 0;
-                } else if (grid[x][y] != 0 && grid[x][y] == grid[x][y+1] && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
+                } else if (grid[x][y] != 0 && Objects.equals(grid[x][y], grid[x][y + 1]) && !combined.contains(x+y*gridSize) && !combined.contains(x+(y+1)*gridSize)){
                     grid[x][y] = 0;
                     grid[x][y+1] ++;
                     combined.add(x + (y+1)*gridSize);
@@ -371,20 +380,27 @@ public class Game extends BukkitRunnable{
         ItemStack item = event.getCurrentItem();
         if(item.isSimilar(this.left)){
             onClick(Clicks.LEFT);
-            return;
         } else if(item.isSimilar(this.right)){
             onClick(Clicks.RIGHT);
-            return;
         } else if(item.isSimilar(this.up)){
             onClick(Clicks.UP);
-            return;
         } else if(item.isSimilar(this.down)){
             onClick(Clicks.DOWN);
-            return;
+        } else if (item.isSimilar(undoLastMoveButton)) {
+            loadGameState(lastState);
         }
     }
 
+    private void loadGameState(GameState lastState) {
+        this.grid = lastState.getGrid();
+        this.score = lastState.getScore();
+        build();
+    }
+
     public void onClick(Clicks click){
+        if (status != Status.PLAY) return;
+        // save state for 'go back button'
+        lastState.set(score, grid);
         tofe.debug("clicked");
         switch (click){
             case LEFT:
@@ -422,16 +438,13 @@ public class Game extends BukkitRunnable{
                 if(status != Status.LEFT){
                     spawn();
                 }
-                build();
-
                 break;
+
             case DOWN:
                 moveOneDown();
                 if(status != Status.DOWN){
                     spawn();
                 }
-                build();
-
                 break;
 
             case RIGHT:
@@ -439,7 +452,6 @@ public class Game extends BukkitRunnable{
                 if(status != Status.RIGHT){
                     spawn();
                 }
-                build();
                 break;
 
             case UP:
@@ -447,10 +459,9 @@ public class Game extends BukkitRunnable{
                 if(status != Status.UP){
                     spawn();
                 }
-                build();
-
                 break;
         }
+        build();
     }
 
     public enum Clicks{

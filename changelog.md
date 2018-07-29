@@ -1,6 +1,7 @@
 ### v 2.1.1
 - fix top navigation
 - make display name of surrounding grid items configurable
+- add optional "undo last move button" (#1)
 
 ### v 2.1.0
 - compatibility with minecraft 1.13

@@ -39,6 +39,7 @@ public class GameManager extends EasyManager {
     private Map<String,GameRules> gameTypes = new HashMap<>();
     private boolean topNav, surroundGrid;
     private ItemStack surroundItemStack;
+    private ItemStack undoLastMoveButton;
 
     public GameManager(Tofe tofe){
         this.tofe = tofe;
@@ -47,14 +48,38 @@ public class GameManager extends EasyManager {
         loadTiles();
         this.topNav = tofe.getConfig().getBoolean("rules.topNavigation", false);
         this.surroundGrid = tofe.getConfig().getBoolean("rules.surroundTheGrid.enable", true);
-        surroundItemStack = ItemStackUtility.loadItem(tofe.getConfig().getConfigurationSection("rules.surroundTheGrid"));
-        if (surroundItemStack == null) {
-            tofe.warn("invalid surroundItemStack... falling back to default");
-            surroundItemStack = ItemStackUtility.getItemStack("stained_glass_pane:15");
-            ItemMeta meta = surroundItemStack.getItemMeta();
-            meta.setDisplayName(ChatColor.AQUA.toString());
-            surroundItemStack.setItemMeta(meta);
+        if (!tofe.getConfig().isConfigurationSection("rules.surroundTheGrid")) {
+            loadDefaultSurroundItemStack();
+        } else {
+            surroundItemStack = ItemStackUtility.loadItem(tofe.getConfig().getConfigurationSection("rules.surroundTheGrid"));
         }
+        if (surroundItemStack == null) {
+            loadDefaultSurroundItemStack();
+        }
+        if (!tofe.getConfig().isConfigurationSection("rules.undoLastMove")) {
+            loadDefaultUndoLastMoveButton();
+        } else {
+            undoLastMoveButton = ItemStackUtility.loadItem(tofe.getConfig().getConfigurationSection("rules.undoLastMove"));
+        }
+        if (undoLastMoveButton == null) {
+            loadDefaultUndoLastMoveButton();
+        }
+    }
+
+    private void loadDefaultUndoLastMoveButton() {
+        tofe.warn("invalid undoLastMoveButton... falling back to default");
+        undoLastMoveButton = ItemStackUtility.getItemStack("lever");
+        ItemMeta meta = undoLastMoveButton.getItemMeta();
+        meta.setDisplayName(ChatColor.AQUA.toString() + "Undo last move");
+        undoLastMoveButton.setItemMeta(meta);
+    }
+
+    private void loadDefaultSurroundItemStack() {
+        tofe.warn("invalid surroundItemStack... falling back to default");
+        surroundItemStack = ItemStackUtility.getItemStack("stained_glass_pane:15");
+        ItemMeta meta = surroundItemStack.getItemMeta();
+        meta.setDisplayName(ChatColor.AQUA.toString());
+        surroundItemStack.setItemMeta(meta);
     }
 
     private void loadTiles() {
@@ -158,7 +183,8 @@ public class GameManager extends EasyManager {
     public void loadGameRules(ConfigurationSection buttonSec, String buttonID) {
         double cost = buttonSec.getDouble("cost", 0.);
         boolean saveStats = buttonSec.getBoolean("saveStats", false);
-        gameTypes.put(buttonID, new GameRules(tofe, buttonID, cost, saveStats));
+        boolean undoLastMove = buttonSec.getBoolean("undoLastMove", false);
+        gameTypes.put(buttonID, new GameRules(tofe, buttonID, cost, saveStats, undoLastMove));
     }
 
     @Override
@@ -169,5 +195,9 @@ public class GameManager extends EasyManager {
 
     private boolean pay(Player[] player, double cost) {
         return tofe.payIfNecessary(player[0], cost);
+    }
+
+    protected ItemStack getUndoLastMoveButton() {
+        return this.undoLastMoveButton;
     }
 }

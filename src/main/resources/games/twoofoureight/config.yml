@@ -34,6 +34,8 @@ gameBox:
       - "&1You can win tokens above &61000"
       slot: 20
       cost: 5
+      # adds a button that allows to undo the last move
+      undoLastMove: true
       scoreIntervals:
         # all keys have to be integers otherwise they will be ignored and a warning will be printed in the console
 
@@ -68,6 +70,7 @@ gameBox:
       cost: 50
       # if true the best score of this button is saved
       saveStats: true
+      undoLastMove: false
       scoreIntervals:
         0:
           money: 0
@@ -111,6 +114,11 @@ rules:
     enable: true
     materialData: "stained_glass_pane:15"
     displayName: "&a"
+  # undo last move button
+  #   this functionality can be turned off on per game mode basis
+  undoLastMove:
+    materialData: "lever"
+    displayName: "&l&aUndo last move"
 
 # Buttons in the game
 buttons:

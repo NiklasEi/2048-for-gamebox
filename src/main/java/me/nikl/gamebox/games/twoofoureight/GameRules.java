@@ -9,10 +9,12 @@ import org.bukkit.configuration.ConfigurationSection;
  * Created by Niklas on 16.02.2017.
  */
 public class GameRules extends GameRuleMultiRewards {
+    private boolean undoLastMove;
 
-    public GameRules(Tofe game, String key, double cost, boolean saveStats){
+    public GameRules(Tofe game, String key, double cost, boolean saveStats, boolean undoLastMove){
         super(key, saveStats, SaveType.SCORE, cost);
         loadRewards(game);
+        this.undoLastMove = undoLastMove;
     }
 
     private void loadRewards(Tofe game) {
@@ -37,5 +39,9 @@ public class GameRules extends GameRuleMultiRewards {
                 addTokenReward(keyInt, 0);
             }
         }
+    }
+
+    public boolean isUndoLastMove() {
+        return undoLastMove;
     }
 }
