@@ -1,3 +1,7 @@
+### v 2.1.1
+- fix top navigation
+- make display name of surrounding grid items configurable
+
 ### v 2.1.0
 - compatibility with minecraft 1.13
 - better defaults with Arrows in the navigation button names

@@ -110,7 +110,7 @@ rules:
   surroundTheGrid:
     enable: true
     materialData: "stained_glass_pane:15"
-    displayName: "&a2"
+    displayName: "&a"
 
 # Buttons in the game
 buttons:

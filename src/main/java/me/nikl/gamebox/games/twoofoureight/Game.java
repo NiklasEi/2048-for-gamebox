@@ -92,10 +92,10 @@ public class Game extends BukkitRunnable{
         spawn();
         spawn();
         player.openInventory(inventory);
-        player.getOpenInventory().getBottomInventory().setItem(Clicks.UP.getNavButtonSlot(), up);
-        player.getOpenInventory().getBottomInventory().setItem(Clicks.LEFT.getNavButtonSlot(), left);
-        player.getOpenInventory().getBottomInventory().setItem(Clicks.RIGHT.getNavButtonSlot(), right);
-        player.getOpenInventory().getBottomInventory().setItem(Clicks.DOWN.getNavButtonSlot(), down);
+        player.getOpenInventory().getBottomInventory().setItem(13, up);
+        player.getOpenInventory().getBottomInventory().setItem(21, left);
+        player.getOpenInventory().getBottomInventory().setItem(23, right);
+        player.getOpenInventory().getBottomInventory().setItem(31, down);
     }
 
     private void loadIcons() {
@@ -368,11 +368,19 @@ public class Game extends BukkitRunnable{
         if(event.getCurrentItem() == null) return;
         if(over) return;
         if(status != Status.PLAY) return;
-        try {
-            onClick(Clicks.getBySlot(event.getSlot()));
-        } catch (IllegalArgumentException ignore) {
-            tofe.debug("no nav-button in " + event.getSlot());
-            // just return
+        ItemStack item = event.getCurrentItem();
+        if(item.isSimilar(this.left)){
+            onClick(Clicks.LEFT);
+            return;
+        } else if(item.isSimilar(this.right)){
+            onClick(Clicks.RIGHT);
+            return;
+        } else if(item.isSimilar(this.up)){
+            onClick(Clicks.UP);
+            return;
+        } else if(item.isSimilar(this.down)){
+            onClick(Clicks.DOWN);
+            return;
         }
     }
 
@@ -446,23 +454,7 @@ public class Game extends BukkitRunnable{
     }
 
     public enum Clicks{
-        LEFT(21), RIGHT(23), UP(13), DOWN(31);
-
-        private int navButtonSlot;
-        Clicks(int navButtonSlot) {
-            this.navButtonSlot = navButtonSlot;
-        }
-
-        public int getNavButtonSlot() {
-            return navButtonSlot;
-        }
-
-        public static Clicks getBySlot(int slot) {
-            for (Clicks clicks : Clicks.values()) {
-                if (clicks.getNavButtonSlot() == slot) return clicks;
-            }
-            throw new IllegalArgumentException("No navigation button in slot " + slot);
-        }
+        LEFT, RIGHT, UP, DOWN
     }
 
     private enum Status{
