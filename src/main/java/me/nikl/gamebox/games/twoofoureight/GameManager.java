@@ -47,10 +47,7 @@ public class GameManager extends EasyManager {
         loadTiles();
         this.topNav = tofe.getConfig().getBoolean("rules.topNavigation", false);
         this.surroundGrid = tofe.getConfig().getBoolean("rules.surroundTheGrid.enable", true);
-        surroundItemStack = ItemStackUtility.getItemStack(tofe.getConfig().getString("rules.surroundTheGrid.materialData", "160:15"));
-        ItemMeta meta = surroundItemStack.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA+"");
-        surroundItemStack.setItemMeta(meta);
+        surroundItemStack = ItemStackUtility.loadItem(tofe.getConfig().getConfigurationSection("rules.surroundTheGrid"));
     }
 
     private void loadTiles() {
