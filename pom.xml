@@ -6,7 +6,7 @@
 
     <groupId>me.nikl.gamebox.games</groupId>
     <artifactId>2048</artifactId>
-    <version>2.1.1</version>
+    <version>3.0.0-alpha</version>
 
     <repositories>
         <repository>
@@ -24,14 +24,14 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <version>1.14.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- GameBox -->
         <dependency>
             <groupId>me.nikl</groupId>
-            <artifactId>gamebox</artifactId>
-            <version>2.0.0</version>
+            <artifactId>gamebox-core</artifactId>
+            <version>3.0.0-alpha</version>
         </dependency>
     </dependencies>
 

@@ -16,7 +16,7 @@ langFile: "default"
 gameBox:
   mainButton:
     # define the Material and data for the button (format: 'material:data')
-    materialData: "stained_clay:11"
+    materialData: "BLUE_CONCRETE"
     # display name of the button
     displayName: "&32048"
     # lore of the button
@@ -25,7 +25,7 @@ gameBox:
     - "&1Shift dem tiles and add 'em up"
   gameButtons:
     normal:
-      materialData: "WOOL:13"
+      materialData: "GREEN_WOOL"
       displayName: "&a&l2048"
       lore:
       - ""
@@ -56,7 +56,7 @@ gameBox:
           money: 20
           tokens: 1
     saveStats:
-      materialData: "stained_clay:3"
+      materialData: "LIGHT_BLUE_CONCRETE"
       displayName: "&a&lCompetition"
       lore:
       - ""
@@ -89,7 +89,7 @@ gameBox:
     # use the same key as the game you want to display the top list for
     #   for that button 'saveStats' must be true (see above)
     saveStats:
-      materialData: "stained_clay:11"
+      materialData: "BLUE_CONCRETE"
       displayName: "&a&lTop list"
       lore:
       - ""
@@ -112,7 +112,7 @@ rules:
   # if true the grid will be surrounded with black
   surroundTheGrid:
     enable: true
-    materialData: "stained_glass_pane:15"
+    materialData: "BLACK_STAINED_GLASS_PANE"
     displayName: "&a"
   # undo last move button
   #   this functionality can be turned off on per game mode basis
@@ -137,59 +137,59 @@ economy:
 #   'glow' is an optional boolean
 tiles:
   1:
-    materialData: "WOOL"
+    materialData: "WHITE_WOOL"
     displayName: "&a2"
   2:
-    materialData: "WOOL:1"
+    materialData: "ORANGE_WOOL"
     displayName: "&a4"
   3:
-    materialData: "WOOL:4"
+    materialData: "YELLOW_WOOL"
     displayName: "&a8"
   4:
-    materialData: "WOOL:5"
+    materialData: "LIME_WOOL"
     displayName: "&a16"
   5:
-    materialData: "WOOL:3"
+    materialData: "LIGHT_BLUE_WOOL"
     displayName: "&a32"
   6:
-    materialData: "WOOL:2"
+    materialData: "MAGENTA_WOOL"
     displayName: "&a64"
   7:
-    materialData: "WOOL:11"
+    materialData: "BLUE_WOOL"
     displayName: "&a128"
   8:
-    materialData: "WOOL:13"
+    materialData: "GREEN_WOOL"
     displayName: "&a256"
   9:
-    materialData: "stained_clay"
+    materialData: "WHITE_CONCRETE"
     displayName: "&a512"
     glow: true
   10:
-    materialData: "stained_clay:1"
+    materialData: "ORANGE_CONCRETE"
     displayName: "&a1024"
     glow: true
   11:
-    materialData: "stained_clay:4"
+    materialData: "YELLOW_CONCRETE"
     displayName: "&a2048"
     glow: true
   12:
-    materialData: "stained_clay:5"
+    materialData: "LIME_CONCRETE"
     displayName: "&a4096"
     glow: true
   13:
-    materialData: "stained_clay:3"
+    materialData: "LIGHT_BLUE_CONCRETE"
     displayName: "&a&l8192"
     glow: true
   14:
-    materialData: "stained_clay:2"
+    materialData: "MAGENTA_CONCRETE"
     displayName: "&a&l16384"
     glow: true
   15:
-    materialData: "stained_clay:11"
+    materialData: "BLUE_CONCRETE"
     displayName: "&a&l32768"
     glow: true
   16:
-    materialData: "stained_clay:13"
+    materialData: "GREEN_CONCRETE"
     displayName: "&a&l65536"
     glow: true
   17:
