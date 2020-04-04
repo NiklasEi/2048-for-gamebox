@@ -1,6 +1,0 @@
-name: 2048
-author: Nikl
-main: me.nikl.gamebox.games.TofeMain
-version: 2.1.1
-website: nikl.me
-depend: [GameBox]

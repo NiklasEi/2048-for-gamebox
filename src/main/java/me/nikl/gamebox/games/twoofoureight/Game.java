@@ -60,9 +60,6 @@ public class Game extends BukkitRunnable{
         loadIcons();
 
         String title= lang.GAME_TITLE.replace("%score%", String.valueOf(score));
-        if(GameBoxSettings.checkInventoryLength && title.length() > 32){
-            title = "Title is too long!";
-        }
         this.inventory = tofe.createInventory(54, title);
         prepareInventory(topNav, surroundGrid, surroundItemStack);
         this.lastState = new GameState(gridSize);

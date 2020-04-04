@@ -18,7 +18,7 @@ public class GameState {
         this.grid = new Integer[gridSize][gridSize];
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid.length; x++) {
-                this.grid[x][y] = new Integer(grid[x][y]);
+                this.grid[x][y] = Integer.valueOf(grid[x][y]);
             }
         }
     }

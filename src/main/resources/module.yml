@@ -1,0 +1,10 @@
+id: ${project.artifactId}
+version: ${project.version}
+authors: ["Niklas Eicker"]
+name: ${project.name}
+description: ${project.description}
+sourceUrl: ${project.scm.url}
+updatedAt: !!java.lang.Long ${timestamp}
+dependencies:
+  - id: gamebox
+    versionConstrain: ">= ${gamebox.version}"
