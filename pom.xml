@@ -94,6 +94,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <gamebox.version>3.0.0-beta.2</gamebox.version>
+        <gamebox.version>3.0.0-beta.3</gamebox.version>
     </properties>
 </project>
