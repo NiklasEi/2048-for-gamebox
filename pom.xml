@@ -8,7 +8,7 @@
     <artifactId>2048</artifactId>
     <name>2048</name>
     <packaging>jar</packaging>
-    <version>3.0.0-beta</version>
+    <version>3.0.0-beta.2</version>
     <description>Combine tiles to reach ever greater numbers</description>
 
     <distributionManagement>
